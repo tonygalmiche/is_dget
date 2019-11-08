@@ -33,5 +33,13 @@
             sequence="10"
             action="is_classement_action"
         />
+        <menuitem
+            id="is_specialite_menu"
+            name="Spécialité"
+            parent="is_tables_menu"
+            sequence="20"
+            action="is_specialite_action"
+        />
+
     </data>
 </odoo>

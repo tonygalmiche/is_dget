@@ -24,7 +24,6 @@ class ResPartner(models.Model):
     is_prefixe         = fields.Char(u"Préfixe")
     is_numero          = fields.Integer(u"Numéro")
     is_service         = fields.Char(u"Service")
-    is_specialite      = fields.Char(u"Spécialité(s)")
     is_specialite_ids  = fields.Many2many('is.specialite', 'res_partner_is_specialite_rel', 'partner_id', 'specialite_id', u'Spécialités')
     is_classement_id   = fields.Many2one('is.classement', "Classement")
 
