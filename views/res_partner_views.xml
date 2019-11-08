@@ -55,7 +55,7 @@
         <field name="res_model">res.partner</field>
         <field name="view_type">form</field>
         <field name="limit">200</field>
-        <field name="view_mode">tree,kanban,form</field>
+        <field name="view_mode">tree,kanban,form,activity</field>
         <field name="context">{"search_default_customer":1}</field>
     </record>
 
