@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- is.dossier -->
+    <record id="is_dossier_form" model="ir.ui.view">
+        <field name="name">is.dossier.form</field>
+        <field name="model">is.dossier</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="numaff"/>
+                            <field name="adresse1"/>
+                            <field name="codepostal"/>
+                            <field name="lieu"/>
+                            <field name="m_ouvrage_id"/>
+                            <field name="date"/>
+                            <field name="montant_ope"/>
+                            <field name="description_complete"/>
+                            <field name="dossierreference"/>
+                            <field name="distance"/>
+                            <field name="duree" widget="float_time"/>
+                        </group>
+                        <group>
+                            <field name="nom"/>
+                            <field name="description_succinte"/>
+                            <field name="adresse2"/>
+                            <field name="numconcours"/>
+                            <field name="m_oeuvre_id"/>
+                            <field name="surface"/>
+                            <field name="site_internet"/>
+                            <field name="nota"/>
+                            <field name="fiche"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="is_dossier_tree" model="ir.ui.view">
+        <field name="name">is.dossier.tree</field>
+        <field name="model">is.dossier</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="numaff"/>
+                <field name="nom"/>
+                <field name="lieu"/>
+                <field name="m_oeuvre_id"/>
+                <field name="m_ouvrage_id"/>
+                <field name="montant_ope"/>
+                <field name="surface"/>
+                <field name="distance"/>
+                <field name="duree" widget="float_time"/>
+            </tree>
+        </field>
+    </record>
+    <record id="is_dossier_search" model="ir.ui.view">
+        <field name="name">is.dossier.search</field>
+        <field name="model">is.dossier</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="numaff"/>
+                <field name="nom"/>
+                <field name="lieu"/>
+                <field name="m_ouvrage_id"/>
+                <field name="m_oeuvre_id"/>
+           </search>
+        </field>
+    </record>
+    <record  id="is_dossier_action" model="ir.actions.act_window">
+        <field name="name">Dossier</field>
+        <field name="res_model">is.dossier</field>
+        <field name="view_type">form</field>
+        <field name="limit">200</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+</odoo>
