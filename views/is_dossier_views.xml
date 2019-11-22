@@ -18,7 +18,6 @@
                             <field name="date"/>
                             <field name="montant_ope"/>
                             <field name="description_complete"/>
-                            <field name="dossierreference"/>
                             <field name="distance"/>
                             <field name="duree" widget="float_time"/>
                         </group>
@@ -31,9 +30,22 @@
                             <field name="surface"/>
                             <field name="site_internet"/>
                             <field name="nota"/>
-                            <field name="fiche"/>
                         </group>
                     </group>
+                    <notebook>
+                        <page string="Notes">
+                            <group>
+                                <field name="note_ids" nolabel="1">
+                                    <tree editable="bottom">
+                                        <field name="date"/>
+                                        <field name="auteur"/>
+                                        <field name="titre"/>
+                                        <field name="texte_note"/>
+                                    </tree>
+                                </field>
+                            </group>
+                        </page>
+                    </notebook>
                 </sheet>
             </form>
         </field>

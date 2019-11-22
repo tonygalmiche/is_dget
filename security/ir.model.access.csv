@@ -8,3 +8,7 @@ access_is_specialite_manager,access_is_specialite_manager,model_is_specialite,ba
 access_is_dossier,access_is_dossier,model_is_dossier,base.group_user,1,0,0,0
 access_is_dossier_manager,access_is_dossier_manager,model_is_dossier,sales_team.group_sale_manager,1,1,1,1
 
+access_is_dossier_note,access_is_dossier_note,model_is_dossier_note,base.group_user,1,0,0,0
+access_is_dossier_note_manager,access_is_dossier_note_manager,model_is_dossier_note,sales_team.group_sale_manager,1,1,1,1
+
+

@@ -10,6 +10,7 @@ class IsDossier(models.Model):
     _name = 'is.dossier'
     _description = "Dossier"
     _order = 'numaff desc'
+    _rec_name = 'numaff'
 
     numaff               = fields.Char("Numero de dossier", required=True, index=True)
     nom                  = fields.Char("Nom")
@@ -26,10 +27,23 @@ class IsDossier(models.Model):
     montant_ope          = fields.Float("Montant de l'opération")
     site_internet        = fields.Char("Site internet")
     description_complete = fields.Text("Description complète")
-    nota                 = fields.Text("Notes")
+    nota                 = fields.Text("Note")
     dossierreference     = fields.Selection([('oui','Oui'),('non','Non')],"Dossier référénce")
     fiche                = fields.Selection([('oui','Oui'),('non','Non')],"Fiche")
     distance             = fields.Float("Distance")
     duree                = fields.Float("Durée")
+    note_ids             = fields.One2many('is.dossier.note', 'dossier_id', u'Notes')
 
+
+class IsDossierNote(models.Model):
+    _name = 'is.dossier.note'
+    _description = "Dossier Note"
+    _order = 'date'
+    _rec_name = 'date'
+
+    dossier_id = fields.Many2one('is.dossier', 'Dossier', required=True)
+    date       = fields.Date("Date")
+    auteur     = fields.Char("Auteur")
+    titre      = fields.Char("Titre")
+    texte_note = fields.Text("Note")
 
