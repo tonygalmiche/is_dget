@@ -41,5 +41,15 @@
             action="is_specialite_action"
         />
 
+        <menuitem
+            id="is_res_partner_title_menu"
+            name="Titre"
+            parent="is_tables_menu"
+            sequence="30"
+            action="is_res_partner_title_action"
+        />
+
+
+
     </data>
 </odoo>
