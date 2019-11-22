@@ -80,12 +80,32 @@
            </search>
         </field>
     </record>
+    <record id="is_dossier_pivot" model="ir.ui.view">
+        <field name="name">is_dossier_pivot</field>
+        <field name="model">is.dossier</field>
+        <field name="arch" type="xml">
+            <pivot>
+                <field name="m_ouvrage_id" type="row"/>
+                <field name="montant_ope"  type="measure"/>
+            </pivot>
+        </field>
+    </record>
+    <record id="is_dossier_graph" model="ir.ui.view">
+        <field name="name">is_dossier_graph</field>
+        <field name="model">is.dossier</field>
+        <field name="arch" type="xml">
+            <graph type="bar" orientation="vertical" stacked="False">
+                <field name="m_ouvrage_id" type="row"/>
+                <field name="montant_ope"  type="measure"/>
+            </graph>
+        </field>
+    </record>
     <record  id="is_dossier_action" model="ir.actions.act_window">
         <field name="name">Dossier</field>
         <field name="res_model">is.dossier</field>
         <field name="view_type">form</field>
         <field name="limit">200</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">tree,form,pivot,graph</field>
     </record>
 
 </odoo>
