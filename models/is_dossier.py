@@ -33,6 +33,7 @@ class IsDossier(models.Model):
     distance             = fields.Float("Distance")
     duree                = fields.Float("Durée")
     note_ids             = fields.One2many('is.dossier.note', 'dossier_id', u'Notes')
+    referencee_ids       = fields.Many2many('is.dossier.reference', 'is_dossier_is_reference_rel', 'dossier_id', 'reference_id', u'Références')
 
 
 class IsDossierNote(models.Model):
@@ -46,4 +47,15 @@ class IsDossierNote(models.Model):
     auteur     = fields.Char("Auteur")
     titre      = fields.Char("Titre")
     texte_note = fields.Text("Note")
+
+
+class IsDossierReference(models.Model):
+    _name = 'is.dossier.reference'
+    _description = u"Référence Dossier"
+    _order = 'name'
+
+    name        = fields.Char(u"Référence dossier")
+    idreference = fields.Integer(u"idreference")
+
+
 

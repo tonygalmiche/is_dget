@@ -77,6 +77,21 @@
         />
 
 
+        <menuitem
+            id="is_table_dossier_menu"
+            name="Dossier"
+            parent="is_tables_menu"
+            sequence="50"
+        />
+        <menuitem
+            id="is_dossier_reference_menu"
+            name="Référence"
+            parent="is_table_dossier_menu"
+            sequence="10"
+            action="is_dossier_reference_action"
+        />
+
+
 
 
     </data>
