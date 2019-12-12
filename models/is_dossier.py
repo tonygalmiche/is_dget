@@ -38,6 +38,28 @@ class IsDossier(models.Model):
 
 
     @api.multi
+    def name_get(self):
+        result = []
+        for obj in self:
+            result.append((obj.id, str(obj.numaff)+u' - '+str(obj.nom)))
+        return result
+
+
+    @api.model
+    def _name_search(self, name, args=None, operator='ilike', limit=100, name_get_uid=None):
+        args = args or []
+        ids = []
+        if name:
+            ids = self._search(['|',('numaff', 'ilike', name),('nom', 'ilike', name)] + args, limit=limit, access_rights_uid=name_get_uid)
+        else:
+            ids = self._search(args, limit=limit, access_rights_uid=name_get_uid)
+        return self.browse(ids).name_get()
+
+
+
+
+
+    @api.multi
     def creation_contrat_action(self, vals):
         for obj in self:
             res= {
