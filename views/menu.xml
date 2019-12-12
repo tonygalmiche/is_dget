@@ -29,6 +29,16 @@
             action="is_dossier_action"
         />
 
+
+        <menuitem   
+            name="Documentation"  
+            id="is_documentation_menu"
+            parent="is_dget_main_menu"
+            sequence="30"
+            action="is_documentation_action"
+        />
+
+
         <menuitem   
             name="Tables"  
             id="is_tables_menu"
@@ -57,6 +67,15 @@
             sequence="30"
             action="is_res_partner_title_action"
         />
+
+        <menuitem
+            id="is_classement_fournisseur_menu"
+            name="Classement Fournisseur"
+            parent="is_tables_menu"
+            sequence="40"
+            action="is_classement_fournisseur_action"
+        />
+
 
 
 

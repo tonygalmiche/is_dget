@@ -13,9 +13,22 @@
                     'invisible': [('is_company','=', False)],
                     'readonly': True,
                 }"/>
-                <field name="is_service"        attrs="{'invisible': [('is_company','=', False)]}"/>
-                <field name="is_classement_id"  attrs="{'invisible': [('is_company','=', False)]}"/>
-                <field name="is_specialite_ids" attrs="{'invisible': [('is_company','=', False)]}"  widget="many2many_tags"/>
+                <field name="is_numero_fournisseur" attrs="{
+                    'invisible': [('is_company','=', False)],
+                    'readonly': True,
+                }"/>
+                <field name="is_service"                   attrs="{'invisible': [('is_company','=', False)]}"/>
+                <field name="is_contact"                   attrs="{'invisible': ['|',('is_company','=', False),('supplier','=', False)]}"/>
+                <field name="is_classement_id"             attrs="{'invisible': ['|',('is_company','=', False),('customer','=', False)]}"/>
+                <field name="is_classement_principal_id"   attrs="{'invisible': ['|',('is_company','=', False),('supplier','=', False)]}"/>
+                <field name="is_classement_secondaire_id"  attrs="{'invisible': ['|',('is_company','=', False),('supplier','=', False)]}"/>
+                <field name="is_classement_tertiaire_id"   attrs="{'invisible': ['|',('is_company','=', False),('supplier','=', False)]}"/>
+                <field name="is_specialite_ids"            attrs="{'invisible': ['|',('is_company','=', False),('customer','=', False)]}"  widget="many2many_tags"/>
+            </field>
+            <field name="website" position="after">
+                <field name="is_acces_pro_url"   attrs="{'invisible': ['|',('is_company','=', False),('supplier','=', False)]}"  widget="url"/>
+                <field name="is_acces_pro_login" attrs="{'invisible': ['|',('is_company','=', False),('supplier','=', False)]}"/>
+                <field name="is_acces_pro_pwd"   attrs="{'invisible': ['|',('is_company','=', False),('supplier','=', False)]}"/>
             </field>
         </field>
     </record>
@@ -47,6 +60,9 @@
                 <field name="is_specialite_ids"/>
                 <field name="is_prefixe"/>
                 <field name="is_service"/>
+                <field name="is_classement_principal_id"/>
+                <field name="is_classement_secondaire_id"/>
+                <field name="is_classement_tertiaire_id"/>
             </field>
         </field>
     </record>
@@ -58,6 +74,20 @@
         <field name="view_mode">tree,kanban,form,activity</field>
         <field name="context">{"search_default_customer":1}</field>
     </record>
+
+
+    <record  id="is_documentation_action" model="ir.actions.act_window">
+        <field name="name">Documentation</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_type">form</field>
+        <field name="limit">200</field>
+        <field name="view_mode">tree,kanban,form,activity</field>
+        <field name="domain">['|',('is_company','=', True),('supplier','=', True)]</field>
+        <field name="context">{'search_default_supplier': 1,'default_customer': 0,'default_supplier': 1, 'default_is_company': True}</field>
+    </record>
+
+
+
 
 
     <!-- is.classement -->
@@ -97,6 +127,55 @@
     <record  id="is_classement_action" model="ir.actions.act_window">
         <field name="name">Classement</field>
         <field name="res_model">is.classement</field>
+        <field name="view_type">form</field>
+        <field name="limit">200</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+
+    <!-- is.classement.fournisseur -->
+    <record id="is_classement_fournisseur_form" model="ir.ui.view">
+        <field name="name">is.classement.fournisseur.form</field>
+        <field name="model">is.classement.fournisseur</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="nature"/>
+                            <field name="classement"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="is_classement_fournisseur_tree" model="ir.ui.view">
+        <field name="name">is.classement.fournisseur.tree</field>
+        <field name="model">is.classement.fournisseur</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="code"/>
+                <field name="nature"/>
+                <field name="classement"/>
+            </tree>
+        </field>
+    </record>
+    <record id="is_classement_fournisseur_search" model="ir.ui.view">
+        <field name="name">is.classement.fournisseur.search</field>
+        <field name="model">is.classement.fournisseur</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="code"/>
+                <field name="nature"/>
+                <field name="classement"/>
+           </search>
+        </field>
+    </record>
+    <record  id="is_classement_fournisseur_action" model="ir.actions.act_window">
+        <field name="name">Classement Fournisseur</field>
+        <field name="res_model">is.classement.fournisseur</field>
         <field name="view_type">form</field>
         <field name="limit">200</field>
         <field name="view_mode">tree,form</field>

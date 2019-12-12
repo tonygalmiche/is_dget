@@ -11,4 +11,6 @@ access_is_dossier_manager,access_is_dossier_manager,model_is_dossier,sales_team.
 access_is_dossier_note,access_is_dossier_note,model_is_dossier_note,base.group_user,1,0,0,0
 access_is_dossier_note_manager,access_is_dossier_note_manager,model_is_dossier_note,sales_team.group_sale_manager,1,1,1,1
 
+access_is_classement_fournisseur,access_is_classement_fournisseur,model_is_classement_fournisseur,base.group_user,1,0,0,0
+access_is_classement_fournisseur_manager,access_is_classement_fournisseur_manager,model_is_classement_fournisseur,sales_team.group_sale_manager,1,1,1,1
 

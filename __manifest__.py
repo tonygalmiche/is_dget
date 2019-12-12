@@ -14,6 +14,7 @@ InfoSaône - Module Odoo 12 pour DGET
         'base',
         'base_vat',
         'sale',
+        'purchase',
         'document',
         'product',
     ],
