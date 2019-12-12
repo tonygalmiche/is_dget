@@ -85,7 +85,7 @@ class IsDossierContratTraitance(models.Model):
 class IsDossierContrat(models.Model):
     _name = 'is.dossier.contrat'
     _description = u"Contrat"
-    _order = 'name'
+    _order = 'name desc'
 
     name          = fields.Char(u"Numero de contrat", required=True, index=True)
     signe         = fields.Selection([('oui','Oui'),('non','Non')],"Signé")
@@ -98,6 +98,7 @@ class IsDossierContrat(models.Model):
     date          = fields.Date(u"Date")
     refclient     = fields.Char(u"Réf client")
     traitance_id  = fields.Many2one('is.dossier.contrat.traitance', u"Traitance", index=True)
+    invoice_ids   = fields.One2many('account.invoice', 'is_contrat_id', u'Factures')
 
 
     @api.multi

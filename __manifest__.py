@@ -13,6 +13,8 @@ InfoSaône - Module Odoo 12 pour DGET
     'depends'    : [
         'base',
         'base_vat',
+        'account',
+        'l10n_fr',
         'sale',
         'purchase',
         'document',
@@ -22,6 +24,7 @@ InfoSaône - Module Odoo 12 pour DGET
         'security/ir.model.access.csv',
         'views/res_partner_views.xml',
         'views/is_dossier_views.xml',
+        'views/account_invoice_view.xml',
         'views/menu.xml',
     ],
     'installable': True,

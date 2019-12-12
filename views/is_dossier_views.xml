@@ -194,6 +194,19 @@
                         <field name="refclient"/>
                         <field name="traitance_id"/>
                     </group>
+
+                    <group string="Factures">
+                        <field name="invoice_ids" nolabel="1">
+                            <tree>
+                                <button string="Facture" name="acceder_facture_action" type="object" icon="fa-search-plus"/>
+                                <field name="number"/>
+                                <field name="date_invoice"/>
+                                <field name="partner_id"/>
+                                <field name="amount_untaxed_invoice_signed" sum="Total"/>
+                                <field name="state"/>
+                            </tree>
+                        </field>
+                    </group>
                 </sheet>
             </form>
         </field>
