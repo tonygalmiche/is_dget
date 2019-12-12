@@ -7,6 +7,13 @@
         <field name="model">is.dossier</field>
         <field name="arch" type="xml">
             <form>
+                <header>
+                    <button
+                        name="creation_contrat_action"
+                        type="object"
+                        string="Nouveau contrat"
+                    />
+                </header>
                 <sheet>
                     <group>
                         <group>
@@ -32,6 +39,24 @@
                             <field name="nota"/>
                         </group>
                     </group>
+                    <group string="Références">
+                        <field name="referencee_ids" widget="many2many_tags"/>
+                    </group>
+                    <group string="Contrats">
+                        <field name="contrat_ids" nolabel="1">
+                            <tree>
+                                <button string="Contrat" name="acceder_contrat_action" type="object" icon="fa-search-plus"/>
+                                <field name="name"/>
+                                <field name="signe"/>
+                                <field name="client_id"/>
+                                <field name="description"/>
+                                <field name="date"/>
+                                <field name="refclient"/>
+                                <field name="traitance_id"/>
+
+                            </tree>
+                        </field>
+                    </group>
                     <group string="Notes">
                         <field name="note_ids" nolabel="1">
                             <tree editable="bottom">
@@ -41,9 +66,6 @@
                                 <field name="texte_note"/>
                             </tree>
                         </field>
-                    </group>
-                    <group string="Références">
-                        <field name="referencee_ids" widget="many2many_tags"/>
                     </group>
                 </sheet>
             </form>
@@ -145,6 +167,118 @@
     <record  id="is_dossier_reference_action" model="ir.actions.act_window">
         <field name="name">Référence Dossier</field>
         <field name="res_model">is.dossier.reference</field>
+        <field name="view_type">form</field>
+        <field name="limit">200</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+
+
+    <!-- is.dossier.contrat -->
+    <record id="is_dossier_contrat_form" model="ir.ui.view">
+        <field name="name">is.dossier.contrat.form</field>
+        <field name="model">is.dossier.contrat</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="signe"/>
+                        <field name="dossier_id"/>
+                        <field name="client_id"/>
+                        <field name="description"/>
+                        <field name="notes"/>
+                        <field name="condreglement"/>
+                        <field name="delaipaiement"/>
+                        <field name="date"/>
+                        <field name="refclient"/>
+                        <field name="traitance_id"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="is_dossier_contrat_tree" model="ir.ui.view">
+        <field name="name">is.dossier.contrat.tree</field>
+        <field name="model">is.dossier.contrat</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="signe"/>
+                <field name="dossier_id"/>
+                <field name="client_id"/>
+                <field name="description"/>
+                <field name="date"/>
+                <field name="refclient"/>
+                <field name="traitance_id"/>
+            </tree>
+        </field>
+    </record>
+    <record id="is_dossier_contrat_search" model="ir.ui.view">
+        <field name="name">is.dossier.contrat.search</field>
+        <field name="model">is.dossier.contrat</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="signe"/>
+                <field name="dossier_id"/>
+                <field name="client_id"/>
+                <field name="description"/>
+                <field name="date"/>
+                <field name="refclient"/>
+                <field name="traitance_id"/>
+           </search>
+        </field>
+    </record>
+    <record  id="is_dossier_contrat_action" model="ir.actions.act_window">
+        <field name="name">Contrat</field>
+        <field name="res_model">is.dossier.contrat</field>
+        <field name="view_type">form</field>
+        <field name="limit">200</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+
+    <!-- is.dossier.contrat.traitance -->
+    <record id="is_dossier_contrat_traitance_form" model="ir.ui.view">
+        <field name="name">is.dossier.contrat.traitance.form</field>
+        <field name="model">is.dossier.contrat.traitance</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="code"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="is_dossier_contrat_traitance_tree" model="ir.ui.view">
+        <field name="name">is.dossier.contrat.traitance.tree</field>
+        <field name="model">is.dossier.contrat.traitance</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="code"/>
+            </tree>
+        </field>
+    </record>
+    <record id="is_dossier_contrat_traitance_search" model="ir.ui.view">
+        <field name="name">is.dossier.contrat.traitance.search</field>
+        <field name="model">is.dossier.contrat.traitance</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="code"/>
+           </search>
+        </field>
+    </record>
+    <record  id="is_dossier_contrat_traitance_action" model="ir.actions.act_window">
+        <field name="name">Traitance contrat</field>
+        <field name="res_model">is.dossier.contrat.traitance</field>
         <field name="view_type">form</field>
         <field name="limit">200</field>
         <field name="view_mode">tree,form</field>

@@ -92,6 +92,23 @@
         />
 
 
+        <menuitem
+            id="is_dossier_contrat_traitance_menu"
+            name="Traitance Contrat"
+            parent="is_table_dossier_menu"
+            sequence="20"
+            action="is_dossier_contrat_traitance_action"
+        />
+
+
+        <menuitem
+            id="is_dossier_contrat_menu"
+            name="Contrat"
+            parent="is_table_dossier_menu"
+            sequence="30"
+            action="is_dossier_contrat_action"
+        />
+
 
 
     </data>

@@ -34,6 +34,21 @@ class IsDossier(models.Model):
     duree                = fields.Float("Durée")
     note_ids             = fields.One2many('is.dossier.note', 'dossier_id', u'Notes')
     referencee_ids       = fields.Many2many('is.dossier.reference', 'is_dossier_is_reference_rel', 'dossier_id', 'reference_id', u'Références')
+    contrat_ids          = fields.One2many('is.dossier.contrat', 'dossier_id', u'Contrats')
+
+
+    @api.multi
+    def creation_contrat_action(self, vals):
+        for obj in self:
+            res= {
+                'name': 'Contrat',
+                'view_mode': 'form',
+                'view_type': 'form',
+                'res_model': 'is.dossier.contrat',
+                'type': 'ir.actions.act_window',
+                'context': {'default_dossier_id': obj.id }
+            }
+            return res
 
 
 class IsDossierNote(models.Model):
@@ -54,8 +69,59 @@ class IsDossierReference(models.Model):
     _description = u"Référence Dossier"
     _order = 'name'
 
-    name        = fields.Char(u"Référence dossier")
+    name        = fields.Char(u"Référence dossier", required=True, index=True)
     idreference = fields.Integer(u"idreference")
+
+
+class IsDossierContratTraitance(models.Model):
+    _name = 'is.dossier.contrat.traitance'
+    _description = u"Traitance Contrat"
+    _order = 'name'
+
+    name = fields.Char(u"Traitance", required=True, index=True)
+    code = fields.Char(u"Code")
+
+
+class IsDossierContrat(models.Model):
+    _name = 'is.dossier.contrat'
+    _description = u"Contrat"
+    _order = 'name'
+
+    name          = fields.Char(u"Numero de contrat", required=True, index=True)
+    signe         = fields.Selection([('oui','Oui'),('non','Non')],"Signé")
+    dossier_id    = fields.Many2one('is.dossier', u"Dossier", index=True)
+    client_id     = fields.Many2one('res.partner', u"Client", index=True)
+    description   = fields.Char(u"Description du contrat")
+    notes         = fields.Text(u"Notes")
+    condreglement = fields.Text(u"Condition de règlement")
+    delaipaiement = fields.Text(u"Délai de paiement")
+    date          = fields.Date(u"Date")
+    refclient     = fields.Char(u"Réf client")
+    traitance_id  = fields.Many2one('is.dossier.contrat.traitance', u"Traitance", index=True)
+
+
+    @api.multi
+    def acceder_contrat_action(self, vals):
+        for obj in self:
+            res= {
+                'name': 'Contrat',
+                'view_mode': 'form',
+                'view_type': 'form',
+                'res_model': 'is.dossier.contrat',
+                'res_id': obj.id,
+                'type': 'ir.actions.act_window',
+            }
+            return res
+
+
+
+
+
+
+
+
+
+
 
 
 
