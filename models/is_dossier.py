@@ -143,6 +143,13 @@ class IsDossierContratDetail(models.Model):
     _order = 'contrat_id,numligne'
     _rec_name = 'numligne'
 
+
+    @api.depends('montant1','montant2','montant3','montant4')
+    def _compute_montant_ht(self):
+        for obj in self:
+            obj.montant_ht = obj.montant1 + obj.montant2 + obj.montant3 + obj.montant4
+
+
     contrat_id  = fields.Many2one('is.dossier.contrat', 'Contrat', required=True, ondelete='cascade')
     numligne    = fields.Integer(u"Ligne", required=True)
     phase_id    = fields.Many2one('is.dossier.contrat.phase', 'Phase')
@@ -164,6 +171,8 @@ class IsDossierContratDetail(models.Model):
     stxt4       = fields.Char(u"Description 4")
     montant4    = fields.Float(u"Montant 4", digits=(14,4))
     codass4_id  = fields.Many2one('is.dossier.code.assurance', 'Code assurance 4')
+
+    montant_ht  = fields.Float(u"Montant HT", digits=(14,2), compute='_compute_montant_ht', readonly=True, store=True)
 
     avancement  = fields.Float(u"Avancement")
     nota        = fields.Char(u"Nota")

@@ -142,6 +142,7 @@
                     <group>
                         <group>
                             <field name="name"/>
+                            <field name="idreference"/>
                         </group>
                     </group>
                 </sheet>
@@ -154,6 +155,7 @@
         <field name="arch" type="xml">
             <tree>
                 <field name="name"/>
+                <field name="idreference"/>
             </tree>
         </field>
     </record>
@@ -163,6 +165,7 @@
         <field name="arch" type="xml">
             <search>
                 <field name="name"/>
+                <field name="idreference"/>
            </search>
         </field>
     </record>
@@ -203,6 +206,7 @@
                                 <field name="phase_id"/>
                                 <field name="texte"/>
                                 <field name="dateremise"/>
+                                <field name="montant_ht" sum="Total"/>
                                 <field name="avancement"/>
                                 <field name="nota"/>
                                 <field name="facturable"/>
@@ -212,16 +216,20 @@
                             </tree>
                             <form>
                                 <group>
-                                    <field name="numligne"/>
-                                    <field name="phase_id"/>
-                                    <field name="texte"/>
-                                    <field name="dateremise"/>
-                                    <field name="avancement"/>
-                                    <field name="nota"/>
-                                    <field name="facturable"/>
-                                    <field name="a_facturer"/>
-                                    <field name="facture"/>
-                                    <field name="facture_le"/>
+                                    <group>
+                                        <field name="numligne"/>
+                                        <field name="phase_id"/>
+                                        <field name="texte"/>
+                                        <field name="dateremise"/>
+                                        <field name="avancement"/>
+                                    </group>
+                                    <group>
+                                        <field name="nota"/>
+                                        <field name="facturable"/>
+                                        <field name="a_facturer"/>
+                                        <field name="facture"/>
+                                        <field name="facture_le"/>
+                                    </group>
                                 </group>
                                 <group>
                                     <group string="a">
@@ -245,6 +253,10 @@
                                         <field name="codass4_id"/>
                                     </group>
                                 </group>
+                                <group>
+                                    <field name="montant_ht"/>
+                                </group>
+
                             </form>
                         </field>
                     </group>
@@ -490,7 +502,9 @@
                             <field name="codass4_id"/>
                         </group>
                     </group>
-
+                    <group>
+                        <field name="montant_ht"/>
+                    </group>
                 </sheet>
             </form>
         </field>
@@ -505,6 +519,7 @@
                 <field name="phase_id"/>
                 <field name="texte"/>
                 <field name="dateremise"/>
+                <field name="montant_ht" sum="Total"/>
                 <field name="avancement"/>
                 <field name="nota"/>
                 <field name="facturable"/>
