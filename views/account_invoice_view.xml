@@ -10,6 +10,7 @@
             <field name="arch" type="xml">
                 <field name="partner_id" position="after">
                     <field name="is_contrat_id"/>
+                    <field name="is_dossier_id"/>
                 </field>
             </field>
         </record>
@@ -23,6 +24,7 @@
                 </field>
                 <field name="user_id" position="replace">
                     <field name="is_contrat_id"/>
+                    <field name="is_dossier_id"/>
                 </field>
             </field>
         </record>
@@ -33,6 +35,7 @@
             <field name="arch" type="xml">
                 <field name="user_id" position="replace">
                     <field name="is_contrat_id"/>
+                    <field name="is_dossier_id"/>
                 </field>
             </field>
         </record>

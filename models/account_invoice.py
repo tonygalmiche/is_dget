@@ -5,8 +5,13 @@ from odoo.exceptions import Warning
 class AccountInvoice(models.Model):
     _inherit = "account.invoice"
 
-    is_contrat_id           = fields.Many2one('is.dossier.contrat', u'Contrat')
+    @api.depends('is_contrat_id')
+    def _compute_dossier_id(self):
+        for obj in self:
+            obj.is_dossier_id = obj.is_contrat_id.dossier_id.id
 
+    is_contrat_id = fields.Many2one('is.dossier.contrat', u'Contrat', index=True)
+    is_dossier_id = fields.Many2one('is.dossier', u"Dossier"        , index=True, compute='_compute_dossier_id', readonly=True, store=True)
 
     @api.multi
     def acceder_facture_action(self, vals):
