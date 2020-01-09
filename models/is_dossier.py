@@ -121,7 +121,7 @@ class IsDossierContrat(models.Model):
     refclient     = fields.Char(u"Réf client")
     traitance_id  = fields.Many2one('is.dossier.contrat.traitance', u"Traitance", index=True)
     invoice_ids   = fields.One2many('account.invoice', 'is_contrat_id', u'Factures')
-
+    detail_ids    = fields.One2many('is.dossier.contrat.detail', 'contrat_id', u'Détail')
 
     @api.multi
     def acceder_contrat_action(self, vals):
@@ -137,11 +137,61 @@ class IsDossierContrat(models.Model):
             return res
 
 
+class IsDossierContratDetail(models.Model):
+    _name = 'is.dossier.contrat.detail'
+    _description = u"Détail Contrat"
+    _order = 'contrat_id,numligne'
+    _rec_name = 'numligne'
+
+    contrat_id  = fields.Many2one('is.dossier.contrat', 'Contrat', required=True, ondelete='cascade')
+    numligne    = fields.Integer(u"Ligne", required=True)
+    phase_id    = fields.Many2one('is.dossier.contrat.phase', 'Phase')
+    texte       = fields.Char(u"Description")
+    dateremise  = fields.Date(u"Date")
+
+    stxt1       = fields.Char(u"Description 1")
+    montant1    = fields.Float(u"Montant 1", digits=(14,4))
+    codass1_id  = fields.Many2one('is.dossier.code.assurance', 'Code assurance 1')
+
+    stxt2       = fields.Char(u"Description 2")
+    montant2    = fields.Float(u"Montant 2", digits=(14,4))
+    codass2_id  = fields.Many2one('is.dossier.code.assurance', 'Code assurance 2')
+
+    stxt3       = fields.Char(u"Description 3")
+    montant3    = fields.Float(u"Montant 3", digits=(14,4))
+    codass3_id  = fields.Many2one('is.dossier.code.assurance', 'Code assurance 3')
+
+    stxt4       = fields.Char(u"Description 4")
+    montant4    = fields.Float(u"Montant 4", digits=(14,4))
+    codass4_id  = fields.Many2one('is.dossier.code.assurance', 'Code assurance 4')
+
+    avancement  = fields.Float(u"Avancement")
+    nota        = fields.Char(u"Nota")
+    facturable  = fields.Selection([('oui','Oui'),('non','Non')],"Facturable")
+    a_facturer  = fields.Float(u"A facturé")
+    facture     = fields.Float(u"% facturé")
+    facture_le  = fields.Date(u"Pour le")
 
 
+class IsDossierContratPhase(models.Model):
+    _name = 'is.dossier.contrat.phase'
+    _description = u"Phase Contrat"
+    _order = 'txt_phase'
+    _rec_name = 'txt_phase'
+
+    ref_phase       = fields.Integer(u"Ref"     , required=True, index=True)
+    txt_phase       = fields.Char(u"Code"       , required=True, index=True)
+    det_phase       = fields.Char(u"Description", required=True, index=True)
 
 
+class IsDossierCodeAssurance(models.Model):
+    _name = 'is.dossier.code.assurance'
+    _description = u"Code Assurance"
+    _order = 'code'
+    _rec_name = 'code'
 
+    code        = fields.Char(u"Code"       , required=True, index=True)
+    description = fields.Char(u"Description", required=True, index=True)
 
 
 

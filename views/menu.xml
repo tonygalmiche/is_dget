@@ -21,13 +21,38 @@
             action="is_adresses_action"
         />
 
+
+
+        <menuitem   
+            name="Dossiers"  
+            id="is_dossier_main_menu"
+            parent="is_dget_main_menu"
+            sequence="20"
+        />
         <menuitem   
             name="Dossiers"  
             id="is_dossier_menu"
-            parent="is_dget_main_menu"
-            sequence="20"
+            parent="is_dossier_main_menu"
+            sequence="10"
             action="is_dossier_action"
         />
+        <menuitem
+            id="is_dossier_contrat_menu"
+            name="Contrat"
+            parent="is_dossier_main_menu"
+            sequence="20"
+            action="is_dossier_contrat_action"
+        />
+        <menuitem
+            id="is_dossier_contrat_detail_menu"
+            name="Détail Contrat"
+            parent="is_dossier_main_menu"
+            sequence="30"
+            action="is_dossier_contrat_detail_action"
+        />
+
+
+
 
 
         <menuitem   
@@ -114,13 +139,23 @@
         />
 
 
+
         <menuitem
-            id="is_dossier_contrat_menu"
-            name="Contrat"
+            id="is_dossier_contrat_phase_menu"
+            name="Phase Contrat"
             parent="is_table_dossier_menu"
             sequence="30"
-            action="is_dossier_contrat_action"
+            action="is_dossier_contrat_phase_action"
         />
+
+        <menuitem
+            id="is_dossier_code_assurance_menu"
+            name="Code assurance"
+            parent="is_table_dossier_menu"
+            sequence="40"
+            action="is_dossier_code_assurance_action"
+        />
+
 
 
 
