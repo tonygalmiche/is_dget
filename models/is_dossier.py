@@ -108,8 +108,9 @@ class IsDossierContratTraitance(models.Model):
     _description = u"Traitance Contrat"
     _order = 'name'
 
-    name = fields.Char(u"Traitance", required=True, index=True)
-    code = fields.Char(u"Code")
+    name   = fields.Char(u"Traitance", required=True, index=True)
+    code   = fields.Char(u"Code")
+    active = fields.Boolean(u"Active", default=True)
 
 
 class IsDossierContrat(models.Model):
@@ -151,11 +152,13 @@ class IsDossierContrat(models.Model):
     delaipaiement = fields.Text(u"Délai de paiement")
     date          = fields.Date(u"Date de signature")
     refclient     = fields.Char(u"Réf client")
+    num_marche    = fields.Char(u"N°Marché"    , help=u"Utilisé pour les marchés publiques")
+    bon_commande  = fields.Char(u"N°Commande"  , help=u"Utilisé pour les marchés publiques")
+    code_service  = fields.Char(u"Code service", help=u"Utilisé pour les marchés publiques")
     traitance_id  = fields.Many2one('is.dossier.contrat.traitance', u"Traitance", index=True)
     invoice_ids   = fields.One2many('account.invoice', 'is_contrat_id', u'Factures')
     detail_ids    = fields.One2many('is.dossier.contrat.detail', 'contrat_id', u'Détail')
     restant_ht    = fields.Float(u"Restant HT", digits=(14,2), compute='_compute_restant_ht', readonly=True, store=True)
-
 
 
     @api.multi

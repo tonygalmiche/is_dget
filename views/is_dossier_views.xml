@@ -186,17 +186,24 @@
             <form>
                 <sheet>
                     <group>
-                        <field name="name"/>
-                        <field name="dossier_id"/>
-                        <field name="description" default_focus="1"/>
-                        <field name="signe"/>
-                        <field name="client_id"/>
-                        <field name="notes"/>
-                        <field name="condreglement"/>
-                        <field name="delaipaiement"/>
-                        <field name="date"/>
-                        <field name="refclient"/>
-                        <field name="traitance_id"/>
+                        <group>
+                            <field name="name"/>
+                            <field name="dossier_id"/>
+                            <field name="description" default_focus="1"/>
+                            <field name="signe"/>
+                            <field name="client_id"/>
+                            <field name="notes"/>
+                        </group>
+                        <group>
+                            <field name="condreglement"/>
+                            <field name="delaipaiement"/>
+                            <field name="date"/>
+                            <field name="refclient"/>
+                            <field name="num_marche"/>
+                            <field name="bon_commande"/>
+                            <field name="code_service"/>
+                            <field name="traitance_id"/>
+                        </group>
                     </group>
                     <group string="Composition du contrat">
                         <field name="detail_ids" nolabel="1" context="{'dossier_id': active_id,'test':id}">
@@ -204,7 +211,6 @@
                                 <field name="numligne" widget="handle"/>
                                 <field name="phase_id"/>
                                 <field name="texte"/>
-                                <field name="dateremise"/>
                                 <field name="montant_ht" sum="Total"/>
                                 <field name="avancement"/>
                                 <field name="nota"/>
@@ -219,7 +225,6 @@
                                         <field name="numligne" readonly="1"/>
                                         <field name="phase_id" required="1"/>
                                         <field name="texte"    required="1"/>
-                                        <field name="dateremise"/>
                                         <field name="avancement"/>
                                     </group>
                                     <group>
@@ -341,6 +346,7 @@
                         <group>
                             <field name="name"/>
                             <field name="code"/>
+                            <field name="active"/>
                         </group>
                     </group>
                 </sheet>
@@ -485,7 +491,6 @@
                         <field name="numligne"/>
                         <field name="phase_id" required="1"/>
                         <field name="texte"    required="1"/>
-                        <field name="dateremise"/>
                         <field name="avancement"/>
                         <field name="nota"/>
                         <field name="facturable"/>
@@ -531,7 +536,6 @@
                 <field name="numligne"/>
                 <field name="phase_id"/>
                 <field name="texte"/>
-                <field name="dateremise"/>
                 <field name="montant_ht" sum="Total"/>
                 <field name="avancement"/>
                 <field name="nota"/>
