@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
+from datetime import date
 
 
 class IsDossier(models.Model):
@@ -8,7 +9,21 @@ class IsDossier(models.Model):
     _order = 'numaff desc'
     _rec_name = 'numaff'
 
-    numaff               = fields.Char("Numero de dossier", required=True, index=True)
+
+    @api.multi
+    def _get_numaff(self):
+        annee = date.today().year
+        annee = annee-1989
+        prefix = str(annee)+'A'
+        dossiers=self.env['is.dossier'].search([('numaff','like',prefix)],order="numaff desc",limit=1)
+        numaff=1
+        for dossier in dossiers:
+            numaff = int(dossier.numaff[-3:])
+            numaff+=1
+        numaff=prefix+('000'+str(numaff))[-3:]
+        return numaff
+
+    numaff               = fields.Char("Numero de dossier", required=True, index=True, default=lambda self: self._get_numaff())
     nom                  = fields.Char("Nom", required=True)
     description_succinte = fields.Text("Description succinte")
     adresse1             = fields.Char("Adresse 1")
@@ -50,9 +65,6 @@ class IsDossier(models.Model):
         else:
             ids = self._search(args, limit=limit, access_rights_uid=name_get_uid)
         return self.browse(ids).name_get()
-
-
-
 
 
     @api.multi
@@ -113,8 +125,23 @@ class IsDossierContrat(models.Model):
                 restant_ht+=line.montant_ht-line.montant_ht*line.avancement/100.0
             obj.restant_ht = restant_ht
 
+    @api.multi
+    def _get_numcontrat(self):
+        context = self._context
+        numcontrat=''
+        if 'active_id' in context:
+            dossier_id = context['active_id']
+            dossiers=self.env['is.dossier'].search([('id','=',dossier_id)])
+            for dossier in dossiers:
+                numaff = dossier.numaff
+                prefix = numaff.replace('A','CT')
+                dossiers=self.env['is.dossier.contrat'].search([('dossier_id','=',dossier_id)])
+                nb = len(dossiers) + 1
+                numcontrat = prefix+'-'+str(nb)
+        return numcontrat
 
-    name          = fields.Char(u"Numero de contrat", required=True, index=True)
+
+    name          = fields.Char(u"Numero de contrat", required=True, index=True, default=lambda self: self._get_numcontrat())
     signe         = fields.Selection([('oui','Oui'),('non','Non')],"Signé")
     dossier_id    = fields.Many2one('is.dossier', u"Dossier", index=True, required=True, ondelete='cascade')
     client_id     = fields.Many2one('res.partner', u"Client", index=True)
@@ -159,7 +186,7 @@ class IsDossierContratDetail(models.Model):
 
 
     contrat_id  = fields.Many2one('is.dossier.contrat', 'Contrat', required=True, ondelete='cascade')
-    numligne    = fields.Integer(u"Ligne", required=True)
+    numligne    = fields.Integer(u"Ligne")
     phase_id    = fields.Many2one('is.dossier.contrat.phase', 'Phase')
     texte       = fields.Char(u"Description")
     dateremise  = fields.Date(u"Date")
@@ -185,7 +212,7 @@ class IsDossierContratDetail(models.Model):
     avancement  = fields.Float(u"% avancement")
     nota        = fields.Char(u"Nota")
     facturable  = fields.Selection([('oui','Oui'),('non','Non')],"Facturable")
-    a_facturer  = fields.Float(u"A facturé")
+    a_facturer  = fields.Float(u"% à facturer")
     facture     = fields.Float(u"% facturé")
     facture_le  = fields.Date(u"Pour le")
 
