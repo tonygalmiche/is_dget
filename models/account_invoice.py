@@ -29,3 +29,17 @@ class AccountInvoice(models.Model):
             }
             return res
 
+
+class AccountInvoiceLine(models.Model):
+    _inherit = "account.invoice.line"
+
+    @api.multi
+    def uptate_onchange_product_id(self):
+        for obj in self:
+            obj._onchange_product_id()
+            #obj._compute_price()
+            #obj._set_taxes()
+            obj.invoice_id.compute_taxes()
+
+        return True
+
