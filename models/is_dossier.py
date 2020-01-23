@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
 
-#TODO : Je n'ai pas trouvé ces informations dans l'application
-# 	# 	Colonne 	Type 	Interclassement 	Attributs 	Null 	Défaut 	Extra 	Action
-#	15 	nblogts 	bigint(20) 			Non 	Aucune 		Modifier Modifier 	Supprimer Supprimer 	plus Montrer d'autres actions
-#	21 	fiche 	tinyint(1) 			Oui 	NULL 		Modifier Modifier 	Supprimer Supprimer 	plus Montrer d'autres actions
 
 class IsDossier(models.Model):
     _name = 'is.dossier'
@@ -13,7 +9,7 @@ class IsDossier(models.Model):
     _rec_name = 'numaff'
 
     numaff               = fields.Char("Numero de dossier", required=True, index=True)
-    nom                  = fields.Char("Nom")
+    nom                  = fields.Char("Nom", required=True)
     description_succinte = fields.Text("Description succinte")
     adresse1             = fields.Char("Adresse 1")
     adresse2             = fields.Char("Adresse 2")
@@ -109,19 +105,31 @@ class IsDossierContrat(models.Model):
     _description = u"Contrat"
     _order = 'name desc'
 
+    @api.depends('detail_ids')
+    def _compute_restant_ht(self):
+        for obj in self:
+            restant_ht=0
+            for line in obj.detail_ids:
+                restant_ht+=line.montant_ht-line.montant_ht*line.avancement/100.0
+            obj.restant_ht = restant_ht
+
+
     name          = fields.Char(u"Numero de contrat", required=True, index=True)
     signe         = fields.Selection([('oui','Oui'),('non','Non')],"Signé")
-    dossier_id    = fields.Many2one('is.dossier', u"Dossier", index=True)
+    dossier_id    = fields.Many2one('is.dossier', u"Dossier", index=True, required=True, ondelete='cascade')
     client_id     = fields.Many2one('res.partner', u"Client", index=True)
     description   = fields.Char(u"Description du contrat")
     notes         = fields.Text(u"Notes")
     condreglement = fields.Text(u"Condition de règlement")
     delaipaiement = fields.Text(u"Délai de paiement")
-    date          = fields.Date(u"Date")
+    date          = fields.Date(u"Date de signature")
     refclient     = fields.Char(u"Réf client")
     traitance_id  = fields.Many2one('is.dossier.contrat.traitance', u"Traitance", index=True)
     invoice_ids   = fields.One2many('account.invoice', 'is_contrat_id', u'Factures')
     detail_ids    = fields.One2many('is.dossier.contrat.detail', 'contrat_id', u'Détail')
+    restant_ht    = fields.Float(u"Restant HT", digits=(14,2), compute='_compute_restant_ht', readonly=True, store=True)
+
+
 
     @api.multi
     def acceder_contrat_action(self, vals):
@@ -174,7 +182,7 @@ class IsDossierContratDetail(models.Model):
 
     montant_ht  = fields.Float(u"Montant HT", digits=(14,2), compute='_compute_montant_ht', readonly=True, store=True)
 
-    avancement  = fields.Float(u"Avancement")
+    avancement  = fields.Float(u"% avancement")
     nota        = fields.Char(u"Nota")
     facturable  = fields.Selection([('oui','Oui'),('non','Non')],"Facturable")
     a_facturer  = fields.Float(u"A facturé")

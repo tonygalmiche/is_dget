@@ -22,61 +22,67 @@
         />
 
 
-
+        <!-- Dossiers -->
         <menuitem   
             name="Dossiers"  
             id="is_dossier_main_menu"
             parent="is_dget_main_menu"
             sequence="20"
-        />
-        <menuitem   
-            name="Dossiers"  
-            id="is_dossier_menu"
-            parent="is_dossier_main_menu"
-            sequence="10"
             action="is_dossier_action"
+        />
+
+
+        <!-- Contrats -->
+        <menuitem   
+            name="Contrats"  
+            id="is_contrat_main_menu"
+            parent="is_dget_main_menu"
+            sequence="25"
+        />
+        <menuitem
+            id="is_dossier_contrat_restant_menu"
+            name="Contrats en cours"
+            parent="is_contrat_main_menu"
+            sequence="10"
+            action="is_dossier_contrat_restant_action"
         />
         <menuitem
             id="is_dossier_contrat_menu"
-            name="Contrat"
-            parent="is_dossier_main_menu"
+            name="Tous les contrats"
+            parent="is_contrat_main_menu"
             sequence="20"
             action="is_dossier_contrat_action"
         />
         <menuitem
             id="is_dossier_contrat_detail_menu"
             name="Détail Contrat"
-            parent="is_dossier_main_menu"
+            parent="is_contrat_main_menu"
             sequence="30"
             action="is_dossier_contrat_detail_action"
         />
 
 
-
-
-
-        <menuitem   
-            name="Documentation"  
-            id="is_documentation_menu"
-            parent="is_dget_main_menu"
-            sequence="30"
-            action="is_documentation_action"
-        />
-
-
+        <!-- Factures -->
         <menuitem   
             name="Factures"  
             id="is_account_invoice_menu"
             parent="is_dget_main_menu"
-            sequence="40"
+            sequence="30"
             action="is_account_invoice_action"
         />
 
 
+        <!-- Documentation -->
+        <menuitem   
+            name="Documentation"  
+            id="is_documentation_menu"
+            parent="is_dget_main_menu"
+            sequence="40"
+            action="is_documentation_action"
+        />
 
 
-
-
+        <!-- Tables -->
         <menuitem   
             name="Tables"  
             id="is_tables_menu"
@@ -97,7 +103,6 @@
             sequence="20"
             action="is_specialite_action"
         />
-
         <menuitem
             id="is_res_partner_title_menu"
             name="Titre"
@@ -105,7 +110,6 @@
             sequence="30"
             action="is_res_partner_title_action"
         />
-
         <menuitem
             id="is_classement_fournisseur_menu"
             name="Classement Fournisseur"
@@ -113,8 +117,6 @@
             sequence="40"
             action="is_classement_fournisseur_action"
         />
-
-
         <menuitem
             id="is_table_dossier_menu"
             name="Dossier"
@@ -128,8 +130,6 @@
             sequence="10"
             action="is_dossier_reference_action"
         />
-
-
         <menuitem
             id="is_dossier_contrat_traitance_menu"
             name="Traitance Contrat"

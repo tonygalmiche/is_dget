@@ -79,8 +79,8 @@
                 <field name="numaff"/>
                 <field name="nom"/>
                 <field name="lieu"/>
-                <field name="m_oeuvre_id"/>
                 <field name="m_ouvrage_id"/>
+                <field name="m_oeuvre_id"/>
                 <field name="montant_ope"/>
                 <field name="surface"/>
                 <field name="distance"/>
@@ -188,8 +188,8 @@
                 <sheet>
                     <group>
                         <field name="name"/>
-                        <field name="signe"/>
                         <field name="dossier_id"/>
+                        <field name="signe"/>
                         <field name="client_id"/>
                         <field name="description"/>
                         <field name="notes"/>
@@ -218,8 +218,8 @@
                                 <group>
                                     <group>
                                         <field name="numligne"/>
-                                        <field name="phase_id"/>
-                                        <field name="texte"/>
+                                        <field name="phase_id" required="1"/>
+                                        <field name="texte"    required="1"/>
                                         <field name="dateremise"/>
                                         <field name="avancement"/>
                                     </group>
@@ -260,6 +260,9 @@
                             </form>
                         </field>
                     </group>
+                    <group>
+                        <field name="restant_ht"/>
+                    </group>
                     <group string="Factures">
                         <field name="invoice_ids" nolabel="1">
                             <tree>
@@ -286,9 +289,10 @@
                 <field name="dossier_id"/>
                 <field name="client_id"/>
                 <field name="description"/>
-                <field name="date"/>
-                <field name="refclient"/>
+                <field name="date"/> <!-- TODO : Bug   Error: '201-02-26' n'est pas une date valide -->
+                <field name="refclient"/> 
                 <field name="traitance_id"/>
+                <field name="restant_ht" sum="Total"/>
             </tree>
         </field>
     </record>
@@ -308,13 +312,23 @@
            </search>
         </field>
     </record>
-    <record  id="is_dossier_contrat_action" model="ir.actions.act_window">
-        <field name="name">Contrat</field>
+    <record  id="is_dossier_contrat_restant_action" model="ir.actions.act_window">
+        <field name="name">Contrats en cours</field>
         <field name="res_model">is.dossier.contrat</field>
         <field name="view_type">form</field>
         <field name="limit">200</field>
         <field name="view_mode">tree,form</field>
+        <field name="domain">[('restant_ht','&gt;',0)]</field>
     </record>
+    <record  id="is_dossier_contrat_action" model="ir.actions.act_window">
+        <field name="name">Tous les contrats</field>
+        <field name="res_model">is.dossier.contrat</field>
+        <field name="view_type">form</field>
+        <field name="limit">200</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[]</field>
+    </record>
+
 
 
     <!-- is.dossier.contrat.traitance -->
@@ -470,8 +484,8 @@
                     <group>
                         <field name="contrat_id"/>
                         <field name="numligne"/>
-                        <field name="phase_id"/>
-                        <field name="texte"/>
+                        <field name="phase_id" required="1"/>
+                        <field name="texte"    required="1"/>
                         <field name="dateremise"/>
                         <field name="avancement"/>
                         <field name="nota"/>
