@@ -184,6 +184,15 @@
         <field name="model">is.dossier.contrat</field>
         <field name="arch" type="xml">
             <form>
+                <!--
+                <header>
+                    <button
+                        name="generer_facture_action"
+                        type="object"
+                        string="Générer facture"
+                    />
+                </header>
+                -->
                 <sheet>
                     <group>
                         <group>
@@ -217,7 +226,7 @@
                                 <field name="facturable"/>
                                 <field name="a_facturer"/>
                                 <field name="facture"    readonly="1"/>
-                                <field name="facture_le" readonly="1"/>
+                                <!--<field name="facture_le" readonly="1"/>-->
                             </tree>
                             <form>
                                 <group>
@@ -268,6 +277,13 @@
                         <field name="restant_ht"/>
                     </group>
                     <group string="Factures">
+                        <button
+                            name="generer_facture_action"
+                            type="object"
+                            string="Générer nouvelle facture"
+                        />
+                    </group>
+                    <group>
                         <field name="invoice_ids" nolabel="1">
                             <tree>
                                 <button string="Facture" name="acceder_facture_action" type="object" icon="fa-search-plus"/>

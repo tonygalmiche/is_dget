@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
 from datetime import date
+from odoo.exceptions import Warning
 
 
 class IsDossier(models.Model):
@@ -156,7 +157,7 @@ class IsDossierContrat(models.Model):
     bon_commande  = fields.Char(u"N°Commande"  , help=u"Utilisé pour les marchés publiques")
     code_service  = fields.Char(u"Code service", help=u"Utilisé pour les marchés publiques")
     traitance_id  = fields.Many2one('is.dossier.contrat.traitance', u"Traitance", index=True)
-    invoice_ids   = fields.One2many('account.invoice', 'is_contrat_id', u'Factures')
+    invoice_ids   = fields.One2many('account.invoice', 'is_contrat_id', u'Factures', domain=[('state','not in',['cancel'])])
     detail_ids    = fields.One2many('is.dossier.contrat.detail', 'contrat_id', u'Détail')
     restant_ht    = fields.Float(u"Restant HT", digits=(14,2), compute='_compute_restant_ht', readonly=True, store=True)
 
@@ -175,6 +176,114 @@ class IsDossierContrat(models.Model):
             return res
 
 
+
+    @api.multi
+    def generer_facture_action(self, vals):
+        for obj in self:
+
+            #** Recherche si il y a des lignes a facturer **********************
+            test=False
+            for line in obj.detail_ids:
+                if line.a_facturer>line.facture:
+                    test=True
+            if test==False:
+                raise Warning(u"Aucune ligne à facturer sur ce contrat")
+            #*******************************************************************
+
+
+            #** Recherche du numéro de facture *********************************
+            prefix = obj.name[:2]
+            prefix = prefix+'FC'
+            filtre=[
+                ('number','like',prefix),
+            ]
+            invoices = self.env['account.invoice'].search(filtre,limit=1,order='number desc')
+            suffix=1
+            for invoice in invoices:
+                suffix = int(invoice.number[-3:])+1
+            suffix = ('000'+str(suffix))[-3:]
+            number  = prefix+suffix
+            #*******************************************************************
+
+
+            #** Création entête facture ****************************************
+            vals={
+                'name'              : number,
+                'origin'            : obj.name,
+                'move_name'         : number,
+                'number'            : number,
+                'partner_id'        : obj.client_id.id,
+                'is_contrat_id'     : obj.id,
+                'fiscal_position_id': 1,
+                'type'              : 'out_invoice',
+                'state'             : 'draft',
+            }
+            invoice=self.env['account.invoice'].create(vals)
+            invoice_id = invoice.id
+            #*******************************************************************
+
+            #** Création lignes du contrat *************************************
+            for line in obj.detail_ids:
+                quantity = line.a_facturer/100.0
+                vals={
+                    'invoice_id': invoice_id,
+                    'is_contrat_detail_id': line.id,
+                    'product_id': 1,
+                    'name'      : line.texte,
+                    'quantity'  : quantity,
+                    'price_unit': line.montant_ht,
+                    'account_id': 622, #701100
+                }
+                invoice_line=self.env['account.invoice.line'].create(vals)
+                line_res = invoice_line.uptate_onchange_product_id()
+                vals={
+                    'name'      : line.texte,
+                    'price_unit': line.montant_ht,
+                }
+                invoice_line.write(vals)
+            #*******************************************************************
+
+
+            #** Ajout des factures réalisées ***********************************
+            filtre=[
+                ('is_contrat_id','=',obj.id),
+                ('date_invoice','<=',date.today()),
+                ('state','not in',['cancel']),
+                ('id','!=',invoice_id),
+            ]
+            factures = self.env['account.invoice'].search(filtre,order='date_invoice')
+            for facture in  factures:
+                vals={
+                    'invoice_id': invoice_id,
+                    'product_id': 2,
+                    'name'      : facture.number,
+                    'quantity'  : 1,
+                    'price_unit': -facture.amount_untaxed,
+                    'account_id': 622, #701100
+                }
+                invoice_line=self.env['account.invoice.line'].create(vals)
+                line_res = invoice_line.uptate_onchange_product_id()
+                vals={
+                    'name'      : facture.number,
+                    'price_unit': -facture.amount_untaxed,
+                }
+                invoice_line.write(vals)
+            #*******************************************************************
+
+
+            #** Recalcul de la TVA et validation de la facture *****************
+            res_validate = invoice.compute_taxes()
+            try:
+                res_validate = invoice.action_invoice_open()
+            except:
+                continue
+            #*******************************************************************
+
+
+
+
+
+
 class IsDossierContratDetail(models.Model):
     _name = 'is.dossier.contrat.detail'
     _description = u"Détail Contrat"
@@ -186,6 +295,28 @@ class IsDossierContratDetail(models.Model):
     def _compute_montant_ht(self):
         for obj in self:
             obj.montant_ht = obj.montant1 + obj.montant2 + obj.montant3 + obj.montant4
+
+
+    @api.depends('a_facturer')
+    def _compute_facture(self):
+        cr = self._cr
+        for obj in self:
+            facture=0
+            if obj.montant_ht>0 and obj.id:
+                SQL="""
+                    select sum(ail.price_subtotal)
+                    from account_invoice_line ail inner join account_invoice ai on ail.invoice_id=ai.id
+                    where 
+                        ail.is_contrat_detail_id="""+str(obj.id)+""" and
+                        ai.state not in ('cancel')
+                """
+                cr.execute(SQL)
+                result = cr.fetchall()
+                montant=0
+                for row in result:
+                    montant = row[0] or 0
+                facture=100.0*montant/obj.montant_ht
+            obj.facture=facture
 
 
     contrat_id  = fields.Many2one('is.dossier.contrat', 'Contrat', required=True, ondelete='cascade')
@@ -216,7 +347,7 @@ class IsDossierContratDetail(models.Model):
     nota        = fields.Char(u"Nota")
     facturable  = fields.Selection([('oui','Oui'),('non','Non')],"Facturable")
     a_facturer  = fields.Float(u"% à facturer")
-    facture     = fields.Float(u"% facturé")
+    facture     = fields.Float(u"% facturé", compute='_compute_facture', readonly=True, store=False)
     facture_le  = fields.Date(u"Pour le")
 
 
