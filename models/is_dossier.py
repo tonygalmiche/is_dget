@@ -162,6 +162,18 @@ class IsDossierContrat(models.Model):
     restant_ht    = fields.Float(u"Restant HT", digits=(14,2), compute='_compute_restant_ht', readonly=True, store=True)
     heure_ids     = fields.One2many('is.salarie.heure', 'contrat_id', u'Heures', readonly=True)
 
+
+    @api.multi
+    def write(self, vals):
+        res=super(IsDossierContrat, self).write(vals)
+        for obj in self:
+            numligne=10
+            for line in obj.detail_ids:
+                line.numligne = numligne
+                numligne+=10
+        return res
+
+
     @api.multi
     def acceder_contrat_action(self, vals):
         for obj in self:
@@ -174,6 +186,9 @@ class IsDossierContrat(models.Model):
                 'type': 'ir.actions.act_window',
             }
             return res
+
+
+
 
 
 
