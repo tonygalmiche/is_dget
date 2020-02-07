@@ -19,21 +19,21 @@
                         <group>
                             <field name="numaff"/>
                             <field name="adresse1"/>
+                            <field name="adresse2"/>
                             <field name="codepostal"/>
                             <field name="lieu"/>
                             <field name="m_ouvrage_id"/>
+                            <field name="m_oeuvre_id"/>
                             <field name="date"/>
                             <field name="montant_ope"/>
-                            <field name="description_complete"/>
                             <field name="distance"/>
                             <field name="duree" widget="float_time"/>
                         </group>
                         <group>
                             <field name="nom" default_focus="1"/>
                             <field name="description_succinte"/>
-                            <field name="adresse2"/>
+                            <field name="description_complete"/>
                             <field name="numconcours"/>
-                            <field name="m_oeuvre_id"/>
                             <field name="surface"/>
                             <field name="site_internet"/>
                             <field name="nota"/>
@@ -289,9 +289,20 @@
                                 <button string="Facture" name="acceder_facture_action" type="object" icon="fa-search-plus"/>
                                 <field name="number"/>
                                 <field name="date_invoice"/>
-                                <field name="partner_id"/>
-                                <field name="amount_untaxed_invoice_signed" sum="Total"/>
-                                <field name="state"/>
+                                <field name="date_due"/>
+                                <field name="amount_untaxed_invoice_signed" sum="Total" string="Montant HT"/>
+                                <field name="state" string="État"/>
+                            </tree>
+                        </field>
+                    </group>
+                    <group string="Heures">
+                        <field name="heure_ids" nolabel="1">
+                            <tree>
+                                <field name="date_travaillee"/>
+                                <field name="user_id"/>
+                                <field name="login"/>
+                                <field name="nb_heures" sum="Total"/>
+                                <field name="note"/>
                             </tree>
                         </field>
                     </group>
@@ -580,5 +591,68 @@
         <field name="limit">200</field>
         <field name="view_mode">tree,form</field>
     </record>
+
+
+
+    <!-- is.salarie.heure -->
+    <record id="is_salarie_heure_form" model="ir.ui.view">
+        <field name="name">is.salarie.heure.form</field>
+        <field name="model">is.salarie.heure</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="date_travaillee"/>
+                            <field name="user_id"/>
+                            <field name="login" readonly="1"/>
+                            <field name="contrat_id" default_focus="1"/>
+                            <field name="nb_heures"/>
+                            <field name="note"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="is_salarie_heure_tree" model="ir.ui.view">
+        <field name="name">is.salarie.heure.tree</field>
+        <field name="model">is.salarie.heure</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="date_travaillee"/>
+                <field name="user_id"/>
+                <field name="login"/>
+                <field name="contrat_id"/>
+                <field name="nb_heures" sum="Total"/>
+                <field name="note"/>
+            </tree>
+        </field>
+    </record>
+    <record id="is_salarie_heure_search" model="ir.ui.view">
+        <field name="name">is.salarie.heure.search</field>
+        <field name="model">is.salarie.heure</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="date_travaillee"/>
+                <field name="user_id"/>
+                <field name="login"/>
+                <field name="contrat_id"/>
+                <field name="note"/>
+           </search>
+        </field>
+    </record>
+    <record  id="is_salarie_heure_action" model="ir.actions.act_window">
+        <field name="name">Heures des salariés</field>
+        <field name="res_model">is.salarie.heure</field>
+        <field name="view_type">form</field>
+        <field name="limit">200</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+
+
+
+
 
 </odoo>

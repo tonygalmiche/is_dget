@@ -62,6 +62,19 @@
         />
 
 
+
+        <!-- Heures -->
+        <menuitem   
+            name="Heures"  
+            id="is_salarie_heure_menu"
+            parent="is_dget_main_menu"
+            sequence="27"
+            action="is_salarie_heure_action"
+        />
+
+
+
+
         <!-- Factures -->
         <menuitem   
             name="Factures"  

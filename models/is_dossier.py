@@ -24,7 +24,7 @@ class IsDossier(models.Model):
         numaff=prefix+('000'+str(numaff))[-3:]
         return numaff
 
-    numaff               = fields.Char("Numero de dossier", required=True, index=True, default=lambda self: self._get_numaff())
+    numaff               = fields.Char("Dossier", required=True, index=True, default=lambda self: self._get_numaff())
     nom                  = fields.Char("Nom", required=True)
     description_succinte = fields.Text("Description succinte")
     adresse1             = fields.Char("Adresse 1")
@@ -32,8 +32,8 @@ class IsDossier(models.Model):
     codepostal           = fields.Char("Code postal")
     lieu                 = fields.Char("Ville")
     numconcours          = fields.Char("Numéro de concours")
-    m_ouvrage_id         = fields.Many2one('res.partner', u"Maitre d'ouvrage")
-    m_oeuvre_id          = fields.Many2one('res.partner', u"Maitre d'oeuvre")
+    m_ouvrage_id         = fields.Many2one('res.partner', u"Maitre d'ouvrage", domain=[('is_company','=',True)])
+    m_oeuvre_id          = fields.Many2one('res.partner', u"Maitre d'oeuvre" , domain=[('is_company','=',True)])
     date                 = fields.Date("Date")
     surface              = fields.Float("Surface")
     montant_ope          = fields.Float("Montant de l'opération")
@@ -124,7 +124,7 @@ class IsDossierContrat(models.Model):
         for obj in self:
             restant_ht=0
             for line in obj.detail_ids:
-                restant_ht+=line.montant_ht-line.montant_ht*line.avancement/100.0
+                restant_ht+=line.montant_ht-line.montant_ht*line.facture/100.0
             obj.restant_ht = restant_ht
 
     @api.multi
@@ -157,10 +157,10 @@ class IsDossierContrat(models.Model):
     bon_commande  = fields.Char(u"N°Commande"  , help=u"Utilisé pour les marchés publiques")
     code_service  = fields.Char(u"Code service", help=u"Utilisé pour les marchés publiques")
     traitance_id  = fields.Many2one('is.dossier.contrat.traitance', u"Traitance", index=True)
-    invoice_ids   = fields.One2many('account.invoice', 'is_contrat_id', u'Factures', domain=[('state','not in',['cancel'])])
+    invoice_ids   = fields.One2many('account.invoice', 'is_contrat_id', u'Factures', domain=[('state','not in',['cancel'])], readonly=True)
     detail_ids    = fields.One2many('is.dossier.contrat.detail', 'contrat_id', u'Détail')
     restant_ht    = fields.Float(u"Restant HT", digits=(14,2), compute='_compute_restant_ht', readonly=True, store=True)
-
+    heure_ids     = fields.One2many('is.salarie.heure', 'contrat_id', u'Heures', readonly=True)
 
     @api.multi
     def acceder_contrat_action(self, vals):
@@ -279,6 +279,7 @@ class IsDossierContrat(models.Model):
                 continue
             #*******************************************************************
 
+            obj._compute_restant_ht()
 
 
 
@@ -370,6 +371,25 @@ class IsDossierCodeAssurance(models.Model):
 
     code        = fields.Char(u"Code"       , required=True, index=True)
     description = fields.Char(u"Description", required=True, index=True)
+
+
+class IsSalarieHeure(models.Model):
+    _name = 'is.salarie.heure'
+    _description = u"Heures des salariés"
+    _order = 'date_travaillee desc'
+    _rec_name = 'date_travaillee'
+
+    date_travaillee = fields.Date(u"Date travaillée", required=True, index=True, default=lambda *a: fields.Date.today())
+    user_id         = fields.Many2one('res.users', 'Utilisateur', required=True, default=lambda self: self.env.user)
+    login           = fields.Char(u"Login")
+    contrat_id      = fields.Many2one('is.dossier.contrat', 'Contrat', required=True, ondelete='cascade')
+    nb_heures       = fields.Float(u"Nb heures")
+    note            = fields.Char(u"Note")
+    id_heures       = fields.Integer(u"id_heures", index=True)
+
+
+
+
 
 
 
