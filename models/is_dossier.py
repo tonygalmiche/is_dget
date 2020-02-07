@@ -304,7 +304,7 @@ class IsDossierContratDetail(models.Model):
             facture=0
             if obj.montant_ht>0 and obj.id:
                 SQL="""
-                    select sum(ail.price_subtotal)
+                    select max(ail.price_subtotal)
                     from account_invoice_line ail inner join account_invoice ai on ail.invoice_id=ai.id
                     where 
                         ail.is_contrat_detail_id="""+str(obj.id)+""" and
