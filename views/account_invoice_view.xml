@@ -12,6 +12,9 @@
                     <field name="is_contrat_id"/>
                     <field name="is_dossier_id"/>
                 </field>
+                <xpath expr="//page[1]/field[@name='invoice_line_ids']/tree/field[@name='name']" position="after">
+                    <field name="is_contrat_detail_id" domain="[('contrat_id','=',parent.is_contrat_id)]"/>
+                </xpath>
             </field>
         </record>
        <record id="is_invoice_tree" model="ir.ui.view">

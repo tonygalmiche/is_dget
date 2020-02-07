@@ -33,6 +33,8 @@ class AccountInvoice(models.Model):
 class AccountInvoiceLine(models.Model):
     _inherit = "account.invoice.line"
 
+    is_contrat_detail_id = fields.Many2one('is.dossier.contrat.detail', u'Ligne Contrat', index=True)
+
     @api.multi
     def uptate_onchange_product_id(self):
         for obj in self:
