@@ -10,6 +10,7 @@
             <field name="arch" type="xml">
                 <field name="partner_id" position="after">
                     <field name="is_contrat_id"/>
+                    <field name="is_total_contrat_ht"/>
                     <field name="is_dossier_id"/>
                 </field>
                 <xpath expr="//page[1]/field[@name='invoice_line_ids']/tree/field[@name='name']" position="after">

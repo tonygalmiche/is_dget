@@ -47,6 +47,14 @@
             action="is_dossier_contrat_restant_action"
         />
         <menuitem
+            id="is_dossier_contrat_facturable_menu"
+            name="Contrats facturables"
+            parent="is_contrat_main_menu"
+            sequence="10"
+            action="is_dossier_contrat_facturable_action"
+        />
+
+        <menuitem
             id="is_dossier_contrat_menu"
             name="Tous les contrats"
             parent="is_contrat_main_menu"

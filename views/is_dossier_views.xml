@@ -275,6 +275,7 @@
                     </group>
                     <group>
                         <field name="restant_ht"/>
+                        <field name="facturable_ht"/>
                     </group>
                     <group string="Factures">
                         <button
@@ -323,7 +324,8 @@
                 <field name="date"/> <!-- TODO : Bug   Error: '201-02-26' n'est pas une date valide -->
                 <field name="refclient"/> 
                 <field name="traitance_id"/>
-                <field name="restant_ht" sum="Total"/>
+                <field name="restant_ht"    sum="Total"/>
+                <field name="facturable_ht" sum="Total"/>
             </tree>
         </field>
     </record>
@@ -350,6 +352,14 @@
         <field name="limit">200</field>
         <field name="view_mode">tree,form</field>
         <field name="domain">[('restant_ht','&gt;',0)]</field>
+    </record>
+    <record  id="is_dossier_contrat_facturable_action" model="ir.actions.act_window">
+        <field name="name">Contrats facturables</field>
+        <field name="res_model">is.dossier.contrat</field>
+        <field name="view_type">form</field>
+        <field name="limit">200</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('facturable_ht','&gt;',0)]</field>
     </record>
     <record  id="is_dossier_contrat_action" model="ir.actions.act_window">
         <field name="name">Tous les contrats</field>

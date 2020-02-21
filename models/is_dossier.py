@@ -122,10 +122,14 @@ class IsDossierContrat(models.Model):
     @api.depends('detail_ids')
     def _compute_restant_ht(self):
         for obj in self:
-            restant_ht=0
+            restant_ht    = 0
+            facturable_ht = 0
             for line in obj.detail_ids:
-                restant_ht+=line.montant_ht-line.montant_ht*line.facture/100.0
-            obj.restant_ht = restant_ht
+                restant_ht    += line.montant_ht-line.montant_ht*line.facture/100.0
+                if line.a_facturer>line.facture:
+                    facturable_ht += line.montant_ht*(line.a_facturer-line.facture)/100.0
+            obj.restant_ht    = restant_ht
+            obj.facturable_ht = facturable_ht
 
     @api.multi
     def _get_numcontrat(self):
@@ -159,7 +163,8 @@ class IsDossierContrat(models.Model):
     traitance_id  = fields.Many2one('is.dossier.contrat.traitance', u"Traitance", index=True)
     invoice_ids   = fields.One2many('account.invoice', 'is_contrat_id', u'Factures', domain=[('state','not in',['cancel'])], readonly=True)
     detail_ids    = fields.One2many('is.dossier.contrat.detail', 'contrat_id', u'Détail')
-    restant_ht    = fields.Float(u"Restant HT", digits=(14,2), compute='_compute_restant_ht', readonly=True, store=True)
+    restant_ht    = fields.Float(u"Restant HT"   , digits=(14,2), compute='_compute_restant_ht', readonly=True, store=True)
+    facturable_ht = fields.Float(u"Facturable HT", digits=(14,2), compute='_compute_restant_ht', readonly=True, store=True)
     heure_ids     = fields.One2many('is.salarie.heure', 'contrat_id', u'Heures', readonly=True)
 
 
@@ -361,7 +366,7 @@ class IsDossierContratDetail(models.Model):
 
     avancement  = fields.Float(u"% avancement")
     nota        = fields.Char(u"Nota")
-    facturable  = fields.Selection([('oui','Oui'),('non','Non')],"Facturable")
+    facturable  = fields.Selection([('oui','Oui'),('non','Non')],"Facturable", default='oui')
     a_facturer  = fields.Float(u"% à facturer")
     facture     = fields.Float(u"% facturé", compute='_compute_facture', readonly=True, store=False)
     facture_le  = fields.Date(u"Pour le")

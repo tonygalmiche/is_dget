@@ -10,8 +10,17 @@ class AccountInvoice(models.Model):
         for obj in self:
             obj.is_dossier_id = obj.is_contrat_id.dossier_id.id
 
-    is_contrat_id = fields.Many2one('is.dossier.contrat', u'Contrat', index=True)
-    is_dossier_id = fields.Many2one('is.dossier', u"Dossier"        , index=True, compute='_compute_dossier_id', readonly=True, store=True)
+    @api.depends('is_contrat_id')
+    def _compute_total_contrat_ht(self):
+        for obj in self:
+            is_total_contrat_ht = 0
+            for line in obj.is_contrat_id.detail_ids:
+                is_total_contrat_ht += line.montant_ht
+            obj.is_total_contrat_ht = is_total_contrat_ht
+
+    is_contrat_id       = fields.Many2one('is.dossier.contrat', u'Contrat', index=True)
+    is_total_contrat_ht = fields.Float(u"Total contrat HT", digits=(14,2), compute='_compute_total_contrat_ht', readonly=True, store=False)
+    is_dossier_id       = fields.Many2one('is.dossier', u"Dossier"       , compute='_compute_dossier_id'      , readonly=True, store=True, index=True)
 
     @api.multi
     def acceder_facture_action(self, vals):
