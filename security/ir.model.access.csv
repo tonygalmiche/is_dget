@@ -35,3 +35,6 @@ access_is_dossier_code_assurance_manager,access_is_dossier_code_assurance_manage
 access_is_salarie_heure,access_is_salarie_heure,model_is_salarie_heure,base.group_user,1,0,0,0
 access_is_salarie_heure_manager,access_is_salarie_heure_manager,model_is_salarie_heure,sales_team.group_sale_manager,1,1,1,1
 
+access_is_tva,access_is_tva,model_is_tva,base.group_user,1,0,0,0
+access_is_tva_manager,access_is_tva_manager,model_is_tva,sales_team.group_sale_manager,1,1,1,1
+

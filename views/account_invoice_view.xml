@@ -2,6 +2,22 @@
 <odoo>
     <data>
 
+
+
+        <!-- Actualiser TVA et Compte de vente sur les factures -->
+        <record id="update_tva_account_action_server" model="ir.actions.server">
+            <field name="name">Actualiser TVA et Compte de vente</field>
+            <field name="type">ir.actions.server</field>
+            <field name="state">code</field>
+            <field name="model_id" ref="is_dget.model_account_invoice"/>
+            <field name="binding_model_id" ref="is_dget.model_account_invoice"/>
+            <field name="code">
+                records.update_tva_account_action()
+            </field>
+        </record>
+
+
+
         <!-- account.invoice -->
         <record id="is_invoice_form" model="ir.ui.view">
             <field name="name">is_invoice_form</field>
@@ -11,7 +27,9 @@
                 <field name="partner_id" position="after">
                     <field name="is_contrat_id"/>
                     <field name="is_total_contrat_ht"/>
+                    <field name="is_montant_revision"/>
                     <field name="is_dossier_id"/>
+                    <field name="is_tva_id"/>
                 </field>
                 <xpath expr="//page[1]/field[@name='invoice_line_ids']/tree/field[@name='name']" position="after">
                     <field name="is_contrat_detail_id" domain="[('contrat_id','=',parent.is_contrat_id)]"/>
@@ -66,5 +84,61 @@
             <field name="view_id" ref="account.invoice_form"/>
             <field name="act_window_id" ref="is_account_invoice_action"/>
         </record>
+
+
+
+
+
+
+
+    <!-- is.tva -->
+    <record id="is_tva_form" model="ir.ui.view">
+        <field name="name">is.tva.form</field>
+        <field name="model">is.tva</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="tax_id"/>
+                            <field name="account_id"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="is_tva_tree" model="ir.ui.view">
+        <field name="name">is.tva.tree</field>
+        <field name="model">is.tva</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="tax_id"/>
+                <field name="account_id"/>
+            </tree>
+        </field>
+    </record>
+    <record id="is_tva_search" model="ir.ui.view">
+        <field name="name">is.tva.search</field>
+        <field name="model">is.tva</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="tax_id"/>
+                <field name="account_id"/>
+           </search>
+        </field>
+    </record>
+    <record  id="is_tva_action" model="ir.actions.act_window">
+        <field name="name">TVA</field>
+        <field name="res_model">is.tva</field>
+        <field name="view_type">form</field>
+        <field name="limit">200</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+
     </data>
 </odoo>

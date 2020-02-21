@@ -168,15 +168,16 @@ class IsDossierContrat(models.Model):
     heure_ids     = fields.One2many('is.salarie.heure', 'contrat_id', u'Heures', readonly=True)
 
 
-    @api.multi
-    def write(self, vals):
-        res=super(IsDossierContrat, self).write(vals)
-        for obj in self:
-            numligne=10
-            for line in obj.detail_ids:
-                line.numligne = numligne
-                numligne+=10
-        return res
+# TODO : La numérotation automatique pose problème à l'importation et pour faire le lien avec les factures si modification de celle-ci
+#    @api.multi
+#    def write(self, vals):
+#        res=super(IsDossierContrat, self).write(vals)
+#        for obj in self:
+#            numligne=10
+#            for line in obj.detail_ids:
+#                line.numligne = numligne
+#                numligne+=10
+#        return res
 
 
     @api.multi

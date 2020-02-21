@@ -139,10 +139,19 @@
             action="is_classement_fournisseur_action"
         />
         <menuitem
+            id="is_tva_menu"
+            name="TVA"
+            parent="is_tables_menu"
+            sequence="50"
+            action="is_tva_action"
+        />
+
+
+        <menuitem
             id="is_table_dossier_menu"
             name="Dossier"
             parent="is_tables_menu"
-            sequence="50"
+            sequence="60"
         />
         <menuitem
             id="is_dossier_reference_menu"
