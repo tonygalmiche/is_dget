@@ -27,17 +27,21 @@
                         }
                     </style>
                     <div style="height:20mm"/>
-                    <div class="address row">
-                        <div class="col-5 offset-7">
-                            <b>
-                                <t t-if="o.partner_id.name"><span class="rs" t-field="o.partner_id.name"/><br /></t>
-                                <t t-if="o.partner_id.street"><span t-field="o.partner_id.street"/><br /></t>
-                                <t t-if="o.partner_id.street2"><span t-field="o.partner_id.street2"/><br /></t>
-                                <t t-if="o.partner_id.zip"><span t-field="o.partner_id.zip"/> </t>
-                                <t t-if="o.partner_id.city"><span t-field="o.partner_id.city"/><br /></t>
-                            </b>
-                        </div>
-                    </div>
+
+                    <table style="width:100%">
+                        <tr>
+                            <td style="border:none;width:110mm"></td>
+                            <td style="border: 1px solid gray;padding:5mm">
+                                <b>
+                                    <t t-if="o.partner_id.name"><span class="rs" t-field="o.partner_id.name"/><br /></t>
+                                    <t t-if="o.partner_id.street"><span t-field="o.partner_id.street"/><br /></t>
+                                    <t t-if="o.partner_id.street2"><span t-field="o.partner_id.street2"/><br /></t>
+                                    <t t-if="o.partner_id.zip"><span t-field="o.partner_id.zip"/> </t>
+                                    <t t-if="o.partner_id.city"><span t-field="o.partner_id.city"/><br /></t>
+                                </b>
+                            </td>
+                        </tr>
+                    </table>
                     <br />
                     <div class="titre">
                         <span t-if="o.type == 'out_invoice' and o.state in ('open', 'in_payment', 'paid')">Facture n°</span>
@@ -305,7 +309,7 @@
                         </tbody>
                     </table>
 
-                    <t t-if="o.amount_untaxed!=(total2-total3+revision)">
+                    <t t-if="abs(o.amount_untaxed-(total2-total3+revision))>0.05">
                         <br />
                         <div style="background-color:red;font-weight: bold;">ANOMALIE dans les totaux : 
                         <span t-esc="'{0:,.2f}'.format(o.amount_untaxed).replace(',', ' ').replace('.', ',')"/> != (
