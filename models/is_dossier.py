@@ -275,12 +275,13 @@ class IsDossierContrat(models.Model):
             factures = self.env['account.invoice'].search(filtre,order='date_invoice')
             for facture in  factures:
                 vals={
-                    'invoice_id': invoice_id,
-                    'product_id': 2,
-                    'name'      : facture.number,
-                    'quantity'  : 1,
-                    'price_unit': -facture.amount_untaxed,
-                    'account_id': 622, #701100
+                    'invoice_id'   : invoice_id,
+                    'product_id'   : 2,
+                    'name'         : facture.number,
+                    'quantity'     : 1,
+                    'price_unit'   : -facture.amount_untaxed,
+                    'account_id'   : 622, #701100
+                    'is_invoice_id': facture.id,
                 }
                 invoice_line=self.env['account.invoice.line'].create(vals)
                 line_res = invoice_line.uptate_onchange_product_id()

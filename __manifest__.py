@@ -26,6 +26,8 @@ InfoSaône - Module Odoo 12 pour DGET
         'views/is_dossier_views.xml',
         'views/account_invoice_view.xml',
         'views/menu.xml',
+        'report/report_templates.xml',
+        'report/report_invoice.xml',
     ],
     'installable': True,
     'application': True,
