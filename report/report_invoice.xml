@@ -322,6 +322,13 @@
                     <div style="height:3mm"/>
 
                     <table style="width:100%">
+                        <tr>
+                            <td>Notre relevé d'identité banquaire : IBAN FR76 1027 8025 7000 01612 9034 555 - BIC CMCIFR2A</td>
+                        </tr>
+                    </table>
+
+                    <div style="height:3mm"/>
+                    <table style="width:100%">
                         <tr style="height:35mm">
                             <td width="65%" style="font-size:9pt">
                                 Valeur en votre aimable règlement à 30 jours date de facture sans escompte.<br />
