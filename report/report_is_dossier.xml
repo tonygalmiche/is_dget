@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data>
+    <template id="report_is_dossier_document">
+        <t t-call="web.html_container">
+        <t t-call="web.external_layout">
+            <div class="page">
+                <style>
+                    td{
+                        font-size:24pt;
+                        font-weight: bold;
+                        text-align:center;
+                        vertical-align:middle;
+                        border: 1px solid black;
+                        padding:2mm
+                    }
+                </style>
+                <table>
+                    <tr style="height:230mm">
+                        <t t-foreach="range(0, 3)" t-as="x">
+                            <td style="width:65mm;border: 1px solid black;padding:10mm">
+                                <table style="width:42mm">
+                                    <tr style="height:15mm"><td style="background-color: #333399;color:white"> <span t-field="o.numaff"/></td></tr>
+                                    <tr style="height:75mm"><td style="background-color: white;font-size:14pt">   <span t-field="o.nom"/></td></tr>
+                                    <tr style="height:30mm"><td style="background-color: white;font-size:11pt">   <span t-field="o.lieu"/></td></tr>
+                                    <tr style="height:25mm">
+                                        <td style="background-color: #ccffff;font-size:10pt;font-weight: normal">
+                                            <div style="font-size:8pt;">Maître d'Ouvrage</div>
+                                            <span t-field="o.m_ouvrage_id.name"/>
+                                        </td>
+                                    </tr>
+                                    <tr style="height:25mm">
+                                        <td style="background-color: #ffff99;font-size:10pt;font-weight: normal">
+                                            <div style="font-size:8pt;">Maître d'Oeuvre</div>
+                                            <span t-field="o.m_oeuvre_id.name"/>
+                                        </td>
+                                    </tr>
+                                    <tr style="height:35mm"><td></td></tr>
+                                </table>
+                            </td>
+                            <td style="width:3mm;border:none">
+                            </td>
+                        </t>
+                    </tr>
+                </table>
+            </div>
+        </t>
+        </t>
+    </template>
+    
+    <template id="report_is_dossier">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="is_dget.report_is_dossier_document" />
+            </t>
+        </t>
+    </template>
+
+
+    <report 
+        id="is_dossier_report"
+        string="Etiquettes du dossier"
+        model="is.dossier" 
+        report_type="qweb-pdf"
+        file="is_dget.report_is_dossier" 
+        name="is_dget.report_is_dossier" 
+    />
+
+</data>
+</odoo>
