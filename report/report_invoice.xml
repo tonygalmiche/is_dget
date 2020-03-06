@@ -14,6 +14,8 @@
                             border-style:solid; 
                             border-color:gray;
                             padding:0.5mm;
+                            padding-left:1mm;
+                            padding-right:1mm;
                         }
                         .titre{
                             font-size:18pt;
@@ -24,6 +26,7 @@
                             border-bottom: 1px solid black;
                         }
                     </style>
+                    <div style="height:20mm"/>
                     <div class="address row">
                         <div class="col-5 offset-7">
                             <b>
@@ -46,7 +49,7 @@
                         <span t-field="o.number"/>
                     </div>
 
-                    <div style="height:2mm" />
+                    <div style="height:3mm"/>
 
                     <table style="width:100%">
                         <tr>
@@ -54,20 +57,28 @@
                                 Opération
                             </td>
                             <td>
-                                <span t-field="o.is_dossier_id.nom"/>
+                                <b><span t-field="o.is_dossier_id.nom"/></b>
+                            </td>
+                        </tr>
+                        <tr t-if="o.is_contrat_id.refclient">
+                            <td>
+                                Votre numéro de contrat
+                            </td>
+                            <td>
+                                <span t-field="o.is_contrat_id.refclient"/>
                             </td>
                         </tr>
                         <tr>
                             <td>
-                                Contrat n°
+                                Notre numéro de contrat
                             </td>
                             <td>
                                 <span t-field="o.is_contrat_id.name"/>
                             </td>
                         </tr>
-                        <tr>
+                        <tr t-if="o.is_contrat_id.description">
                             <td>
-                                Libellé contrat
+                                Libellé du contrat
                             </td>
                             <td>
                                 <span t-field="o.is_contrat_id.description"/>
@@ -75,18 +86,10 @@
                         </tr>
                         <tr>
                             <td>
-                                Date
+                                Date de la facture
                             </td>
                             <td>
                                 <span t-field="o.date_invoice"/>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                Votre référence
-                            </td>
-                            <td>
-                                <span t-field="o.is_contrat_id.refclient"/>
                             </td>
                         </tr>
                         <tr>
@@ -106,7 +109,7 @@
                             </td>
                         </tr>
 
-                        <tr>
+                        <tr t-if="o.partner_id.vat">
                             <td>
                                 Votre n° TVA intracommunautaire
                             </td>
@@ -123,7 +126,7 @@
                             </td>
                         </tr>
                     </table>
-                    <div style="height:2mm" />
+                    <div style="height:3mm"/>
                     <table style="width:100%">
                         <thead>
                             <tr>
@@ -168,66 +171,90 @@
                     </table>
 
 
-                    <br />
-                    <div style="page-break-after:always;" />
-                    <table style="width:100%">
-                        <thead>
-                            <tr>
-                                <th class="text-center"><span>Historique de facturation</span></th>
-                                <th class="text-center">Date</th>
-                                <th class="text-right">Montant hors révision</th>
-                                <th class="text-right">Révision</th>
-                                <th class="text-right">Montant facturé</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <t t-set="total3"   t-value="0.0"/>
-                            <t t-set="revision" t-value="0.0"/>
+                    <!-- Recherche si il existe des factures précédentes -->
+                    <t t-set="total_revision" t-value="0.0"/>
+                    <t t-set="nb_factures" t-value="0"/>
+                    <t t-foreach="o.invoice_line_ids" t-as="line">
+                        <t t-if="line.product_id.name=='Facture'">
+                            <t t-set="nb_factures" t-value="nb_factures+1"/>
+                            <t t-set="total_revision" t-value="total_revision+line.is_invoice_id.is_montant_revision"/>
+                        </t>
+                    </t>
 
-                            <!-- TODO
-                            - L'ordre des factures n'est pas le bon dans le PDF
-                            - Manque le montant révisé de la facture
-                            - Manque la date de la facture
-                            - Ne pas mettre les factures en négatif
-                            - Sur la facture actuelle de DGET, il n'y a pas le total déja facturé
-
-                            - Revoir l'afficage du taux de TVA
-                            -->
+                    <!-- Recherche des révisions -->
+                    <t t-set="revision" t-value="0.0"/>
+                    <t t-foreach="o.invoice_line_ids" t-as="line">
+                        <t t-if="line.product_id.name=='Révisions'">
+                            <t t-set="revision" t-value="revision+line.price_subtotal"/>
+                        </t>
+                    </t>
 
 
-                            <t t-foreach="o.invoice_line_ids" t-as="line">
-                                <t t-if="line.product_id.name=='Révisions'">
-                                    <t t-set="revision" t-value="revision+line.price_subtotal"/>
-                                </t>
-
+                    <t t-set="total3"         t-value="0.0"/>
+                    <t t-if="nb_factures">
+                        <br />
+                        <div style="page-break-after:always;" />
+                        <table style="width:100%">
+                            <thead>
                                 <tr>
-                                    <t t-if="line.product_id.name=='Facture'">
-                                        <t t-set="montant" t-value="-line.price_subtotal"/>
-                                        <t t-set="total3" t-value="total3-line.price_subtotal"/>
-                                        <td>
-                                            Facture n°<span t-field="line.name"/>
-                                        </td>
-                                        <td class="text-center">
-                                            <span t-field="line.is_invoice_id.date_invoice"/>
-                                        </td>
-                                        <td class="text-right">
-                                            <span t-esc="line.is_invoice_id.is_montant_hors_revision" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
-                                        </td>
-                                        <td class="text-right">
-                                            <span t-esc="line.is_invoice_id.is_montant_revision" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
-                                        </td>
-                                        <td class="text-right">
-                                            <span t-esc="montant" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
-                                        </td>
-
-                                    </t>
+                                    <th class="text-center"><span>Historique de facturation</span></th>
+                                    <th class="text-center">Date</th>
+                                    <th class="text-right" t-if="total_revision">Montant hors révision</th>
+                                    <th class="text-right" t-if="total_revision">Révision</th>
+                                    <th class="text-right">Montant facturé</th>
                                 </tr>
-                            </t>
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+
+                                <!-- TODO
+                                - L'ordre des factures n'est pas le bon dans le PDF
+                                - Manque le montant révisé de la facture
+                                - Manque la date de la facture
+                                - Ne pas mettre les factures en négatif
+                                - Sur la facture actuelle de DGET, il n'y a pas le total déja facturé
+
+                                - Revoir l'afficage du taux de TVA
+                                -->
 
 
-                    <div style="height:2mm" />
+                                <t t-foreach="o.invoice_line_ids" t-as="line">
+                                    <!--
+                                    <t t-if="line.product_id.name=='Révisions'">
+                                        <t t-set="revision" t-value="revision+line.price_subtotal"/>
+                                    </t>
+                                    -->
+                                    <tr>
+                                        <t t-if="line.product_id.name=='Facture'">
+                                            <t t-set="montant" t-value="-line.price_subtotal"/>
+                                            <t t-set="total3" t-value="total3-line.price_subtotal"/>
+                                            <td>
+                                                Facture n°<span t-field="line.name"/>
+                                            </td>
+                                            <td class="text-center">
+                                                <span t-field="line.is_invoice_id.date_invoice"/>
+                                            </td>
+                                            <td class="text-right" t-if="total_revision">
+                                                <span t-esc="line.is_invoice_id.is_montant_hors_revision" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                            </td>
+                                            <td class="text-right" t-if="total_revision">
+                                                <span t-esc="line.is_invoice_id.is_montant_revision" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-esc="montant" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                            </td>
+
+                                        </t>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </t>
+
+
+
+
+
+                    <div style="height:3mm"/>
 
                     <table style="width:100%">
                         <tbody>
@@ -239,16 +266,21 @@
                                     <span t-esc="'{0:,.2f}'.format(total2).replace(',', ' ').replace('.', ',')"/> €
                                 </td>
                             </tr>
-                            <tr>
-                                <td class="text-left">Total déja facturé</td>
+                            <tr t-if="total3">
+                                <td class="text-left">Total déjà facturé</td>
                                 <td class="text-right"><span t-esc="'{0:,.2f}'.format(total3).replace(',', ' ').replace('.', ',')"/> €</td>
                             </tr>
-                            <tr>
-                                <td class="text-left">Sous-Total</td>
+                            <tr t-if="total3">
+                                <td class="text-left">Sous-total</td>
                                 <td class="text-right"><span t-esc="'{0:,.2f}'.format(total2-total3).replace(',', ' ').replace('.', ',')"/> €</td>
                             </tr>
-                            <tr>
-                                <td class="text-left">Révisions</td>
+                            <tr t-if="total_revision">
+                                <td class="text-left">Total des révisions déjà facturées</td>
+                                <td class="text-right"><span t-esc="'{0:,.2f}'.format(total_revision).replace(',', ' ').replace('.', ',')"/> €</td>
+                            </tr>
+
+                            <tr t-if="revision">
+                                <td class="text-left">Révision sur cette facture</td>
                                 <td class="text-right"><span t-esc="'{0:,.2f}'.format(revision).replace(',', ' ').replace('.', ',')"/> €</td>
                             </tr>
 
@@ -283,10 +315,10 @@
                         </div>
                         <br />
                     </t>
-                    <div style="height:2mm" />
+                    <div style="height:3mm"/>
 
                     <table style="width:100%">
-                        <tr>
+                        <tr style="height:35mm">
                             <td width="65%" style="font-size:9pt">
                                 Valeur en votre aimable règlement à 30 jours date de facture sans escompte.
                                 Toute somme non payée à l'échéance donnera lieu au paiement par le client de
