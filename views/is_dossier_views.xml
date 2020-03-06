@@ -663,5 +663,51 @@
 
 
 
+    <!-- is.declaration.maf -->
+    <record id="is_declaration_maf_form" model="ir.ui.view">
+        <field name="name">is.declaration.maf.form</field>
+        <field name="model">is.declaration.maf</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="is_declaration_maf_tree" model="ir.ui.view">
+        <field name="name">is.declaration.maf.tree</field>
+        <field name="model">is.declaration.maf</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+    <record id="is_declaration_maf_search" model="ir.ui.view">
+        <field name="name">is.declaration.maf.search</field>
+        <field name="model">is.declaration.maf</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+           </search>
+        </field>
+    </record>
+    <record  id="is_declaration_maf_action" model="ir.actions.act_window">
+        <field name="name">Déclaration MAF</field>
+        <field name="res_model">is.declaration.maf</field>
+        <field name="view_type">form</field>
+        <field name="limit">200</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+
+
+
+
 
 </odoo>

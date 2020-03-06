@@ -412,9 +412,10 @@ class IsSalarieHeure(models.Model):
 
 
 
+class IsDeclarationMAF(models.Model):
+    _name = 'is.declaration.maf'
+    _description = u"Déclaration MAF"
 
-
-
-
+    name        = fields.Char(u"Année", required=True, index=True)
 
 

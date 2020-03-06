@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data>
+
+
+    <record id="is_declaration_maf_paperformat" model="report.paperformat">
+        <field name="name">Déclaration MAF</field>
+        <field name="default" eval="True" />
+        <field name="format">A4</field>
+        <field name="page_height">0</field>
+        <field name="page_width">0</field>
+        <field name="orientation">Landscape</field>
+        <field name="margin_top">40</field>
+        <field name="margin_bottom">28</field>
+        <field name="margin_left">7</field>
+        <field name="margin_right">7</field>
+        <field name="header_line" eval="False" />
+        <field name="header_spacing">35</field>
+        <field name="dpi">90</field>
+    </record>
+
+
+
+
+
+    <template id="html_container">
+        <t t-set="body_classname" t-value="'container'"/>
+        <t t-call="web.report_layout">
+            <t t-raw="0"/>
+        </t>
+    </template>
+
+
+
+
+    <template id="external_layout_standard">
+        <div class="header">
+            header
+        </div>
+        <t t-raw="0"/>
+        <div class="footer o_standard_footer">
+            footer
+        </div>
+    </template>
+
+
+    <template id="external_layout">
+        <t t-if="not o" t-set="o" t-value="doc"/>
+
+        <t t-if="not company">
+            <!-- Multicompany -->
+            <t t-if="company_id">
+                <t t-set="company" t-value="company_id"/>
+            </t>
+            <t t-elif="o and 'company_id' in o">
+                <t t-set="company" t-value="o.company_id.sudo()"/>
+            </t>
+            <t t-else="else">
+                <t t-set="company" t-value="res_company"/>
+            </t>
+        </t>
+        <t t-call="is_dget.external_layout_standard">
+            <t t-raw="0"/>
+        </t>
+
+    </template>
+
+
+
+
+    <template id="report_is_declaration_maf_document">
+        <t t-call="is_dget.html_container">
+        <t t-call="is_dget.external_layout">
+            <div class="page">
+                <style>
+                </style>
+                <h1>Déclaration MAF <span t-field="o.name"/></h1>
+
+                <div style="page-break-after:always;" />
+                Mettre ici la liste des dossiers
+
+
+            </div>
+        </t>
+        </t>
+    </template>
+    
+    <template id="report_is_declaration_maf">
+        <t t-call="is_dget.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="is_dget.report_is_declaration_maf_document" />
+            </t>
+        </t>
+    </template>
+
+
+    <report 
+        id="is_declaration_maf_report"
+        string="Déclaration MAF"
+        model="is.declaration.maf" 
+        report_type="qweb-pdf"
+        file="is_dget.report_is_declaration_maf" 
+        name="is_dget.report_is_declaration_maf" 
+        paperformat="is_dget.is_declaration_maf_paperformat"
+
+    />
+    <!--
+    <record id="is_dget.is_declaration_maf_report" model="ir.actions.report.xml">
+        <field name="paperformat_id" ref="is_dget.is_declaration_maf_paperformat"/>
+    </record>
+    -->
+
+</data>
+</odoo>

@@ -93,6 +93,17 @@
         />
 
 
+
+        <!-- Factures -->
+        <menuitem   
+            name="Déclaration MAF"  
+            id="is_declaration_maf_menu"
+            parent="is_dget_main_menu"
+            sequence="35"
+            action="is_declaration_maf_action"
+        />
+
+
         <!-- Documentation -->
         <menuitem   
             name="Documentation"  
