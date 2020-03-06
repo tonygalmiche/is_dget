@@ -209,7 +209,6 @@
                             <field name="date"/>
                             <field name="refclient"/>
                             <field name="num_marche"/>
-                            <field name="bon_commande"/>
                             <field name="code_service"/>
                             <field name="traitance_id"/>
                         </group>
