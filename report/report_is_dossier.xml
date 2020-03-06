@@ -24,14 +24,16 @@
                                     <tr style="height:75mm"><td style="background-color: white;font-size:16pt">   <span t-field="o.nom"/></td></tr>
                                     <tr style="height:37mm"><td style="background-color: white;font-size:13pt">   <span t-field="o.lieu"/></td></tr>
                                     <tr style="height:30mm">
-                                        <td style="background-color: #ccffff;font-size:12pt;font-weight: normal">
-                                            <div style="font-size:8pt;">Maître d'Ouvrage</div>
+                                        <td style="background-color: #ccffff;font-size:12pt;font-weight:normal;vertical-align:top">
+                                            <div style="font-size:8pt;text-align:left">Maître d'Ouvrage</div>
+                                            <div style="height:3mm"/>
                                             <span t-field="o.m_ouvrage_id.name"/>
                                         </td>
                                     </tr>
                                     <tr style="height:30mm">
-                                        <td style="background-color: #ffff99;font-size:12pt;font-weight: normal">
-                                            <div style="font-size:8pt;">Maître d'Oeuvre</div>
+                                        <td style="background-color: #ffff99;font-size:12pt;font-weight:normal;vertical-align:top">
+                                            <div style="font-size:8pt;text-align:left">Maître d'Oeuvre</div>
+                                            <div style="height:3mm"/>
                                             <span t-field="o.m_oeuvre_id.name"/>
                                         </td>
                                     </tr>
