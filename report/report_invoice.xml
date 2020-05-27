@@ -232,7 +232,12 @@
                                             <t t-set="montant" t-value="-line.price_subtotal"/>
                                             <t t-set="total3" t-value="total3-line.price_subtotal"/>
                                             <td>
-                                                Facture n°<span t-field="line.name"/>
+                                                <t t-if="line.is_invoice_id.type=='out_refund'">
+                                                    Avoir n°<span t-field="line.name"/>
+                                                </t>
+                                                <t t-if="line.is_invoice_id.type!='out_refund'">
+                                                    Facture n°<span t-field="line.name"/>
+                                                </t>
                                             </td>
                                             <td class="text-center">
                                                 <span t-field="line.is_invoice_id.date_invoice"/>
