@@ -5,7 +5,7 @@
     'author'   : 'InfoSaône',
     'category' : 'InfoSaône',
     'description': """
-InfoSaône - Module Odoo 12 pour DGET
+InfoSaône - Module Odoo 12 pour DGET 
 ===================================================
 """,
     'maintainer' : 'InfoSaône',
