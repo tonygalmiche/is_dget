@@ -13,6 +13,10 @@ class IsDossier(models.Model):
 
     @api.multi
     def _get_numaff(self):
+
+        #Si 1er avril, prendre l'année suivante
+
+
         annee = date.today().year
         annee = annee-1989
         prefix = str(annee)+'A'
@@ -417,5 +421,14 @@ class IsDeclarationMAF(models.Model):
     _description = u"Déclaration MAF"
 
     name        = fields.Char(u"Année", required=True, index=True)
+
+
+    @api.multi
+    def get_contrats(self):
+        contrats = self.env['is.dossier.contrat'].search([],order="name",limit=10)
+        return contrats
+
+
+
 
 

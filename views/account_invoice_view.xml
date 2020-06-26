@@ -33,8 +33,9 @@
                     <field name="is_tva_id"/>
                 </field>
                 <xpath expr="//page[1]/field[@name='invoice_line_ids']/tree/field[@name='name']" position="after">
-                    <field name="is_contrat_detail_id" domain="[('contrat_id','=',parent.is_contrat_id)]"/>
-                    <field name="is_invoice_id"/>
+                    <field name="is_contrat_detail_id" readonly="1" domain="[('contrat_id','=',parent.is_contrat_id)]"/>
+                    <field name="is_invoice_id"        readonly="1"/>
+                    <field name="is_deja_facture"      readonly="1"/>
                 </xpath>
             </field>
         </record>

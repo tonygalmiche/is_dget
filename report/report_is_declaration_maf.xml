@@ -72,12 +72,47 @@
         <t t-call="is_dget.html_container">
         <t t-call="is_dget.external_layout">
             <div class="page">
+
+
+
                 <style>
+                    table{
+                        border:1px solid black;
+                        border-collapse: collapse;
+                    }
+
+                    th{
+                        padding:2pt;
+                        border:1px solid black;
+                    }
+                    td{
+                        padding:2pt;
+                        font-size:9pt
+                        border:1px solid black;
+                    }
                 </style>
-                <h1>Déclaration MAF <span t-field="o.name"/></h1>
+
+
+
+                <h1>DÉCLARATION D'ASSURANCE ANNÉE <span t-field="o.name"/></h1>
 
                 <div style="page-break-after:always;" />
-                Mettre ici la liste des dossiers
+                <table style="border:1px solid black; width:100%">
+                    <thead>
+                        <tr>
+                            <th style="border:1px solid black;text-align:left">Dossier</th>
+                            <th style="border:1px solid black;text-align:left">Contrat</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="o.get_contrats()" t-as="c">
+                            <tr>
+                                <td style="border:1px solid black;"><span t-field="c.dossier_id.numaff"/></td>
+                                <td style="border:1px solid black;"><span t-field="c.name"/></td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
 
 
             </div>

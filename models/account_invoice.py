@@ -79,6 +79,7 @@ class AccountInvoiceLine(models.Model):
 
     is_contrat_detail_id = fields.Many2one('is.dossier.contrat.detail', u'Ligne Contrat', index=True)
     is_invoice_id        = fields.Many2one('account.invoice', u'Facture liée')
+    is_deja_facture      = fields.Float(u"Déjà facturé", digits=(14,4))
 
     @api.multi
     def uptate_onchange_product_id(self):
