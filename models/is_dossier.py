@@ -540,7 +540,7 @@ class IsDeclarationMAF(models.Model):
 
             for k2 in keys2:
                 line    = lines[k2]
-                code    = line[0]
+                code    = line[0].strip()
                 montant = line[1]
 
                 contrats = self.env['is.dossier.contrat'].search([('name','=',k)],order="name",limit=1)
@@ -566,11 +566,17 @@ class IsDeclarationMAF(models.Model):
 
         print('total =',total)
 
-        #print recap
-        for r in recap:
-            print(r, recap[r])
 
-        return [res,recap]
+        keys=sorted(recap.keys(), reverse=False)
+
+        #print recap
+        recap2=[]
+        for k in keys:
+            print(k,recap[k])
+            recap2.append([k,recap[k]])
+
+
+        return [res,recap2]
 
 
         #contrats = self.env['is.dossier.contrat'].search([],order="name",limit=10)
