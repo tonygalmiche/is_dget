@@ -478,6 +478,7 @@
                         <group>
                             <field name="code"/>
                             <field name="description"/>
+                            <field name="ordre"/>
                         </group>
                     </group>
                 </sheet>
@@ -491,6 +492,7 @@
             <tree>
                 <field name="code"/>
                 <field name="description"/>
+                <field name="ordre"/>
             </tree>
         </field>
     </record>

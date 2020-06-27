@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
-from datetime import date
+import datetime
 from odoo.exceptions import Warning
 
 
@@ -17,7 +17,7 @@ class IsDossier(models.Model):
         #Si 1er avril, prendre l'année suivante
 
 
-        annee = date.today().year
+        annee = datetime.date.today().year
         annee = annee-1989
         prefix = str(annee)+'A'
         dossiers=self.env['is.dossier'].search([('numaff','like',prefix)],order="numaff desc",limit=1)
@@ -272,7 +272,7 @@ class IsDossierContrat(models.Model):
             #** Ajout des factures réalisées ***********************************
             filtre=[
                 ('is_contrat_id','=',obj.id),
-                ('date_invoice','<=',date.today()),
+                ('date_invoice','<=',datetime.date.today()),
                 ('state','not in',['cancel']),
                 ('id','!=',invoice_id),
             ]
@@ -392,9 +392,10 @@ class IsDossierContratPhase(models.Model):
 class IsDossierCodeAssurance(models.Model):
     _name = 'is.dossier.code.assurance'
     _description = u"Code Assurance"
-    _order = 'code'
+    _order = 'ordre,code'
     _rec_name = 'code'
 
+    ordre       = fields.Char(u"Ordre"      , required=True, index=True, default='x')
     code        = fields.Char(u"Code"       , required=True, index=True)
     description = fields.Char(u"Description", required=True, index=True)
 
@@ -424,9 +425,159 @@ class IsDeclarationMAF(models.Model):
 
 
     @api.multi
+    def getCodeAssurance(self,code_id):
+        cr = self._cr
+        SQL="SELECT code,ordre FROM is_dossier_code_assurance where id="+str(code_id)
+        cr.execute(SQL)
+        rows = cr.fetchall()
+        code=''
+        ordre=''
+        for row in rows:
+            code  = row[0]
+            ordre = row[1]
+        return code, ordre
+
+
+#    def getContrat(contrat):
+#        cr = self._cr
+#        SQL="""
+#            SELECT 
+#                idc.id contrat_id,
+#                idct.code traitance
+#            FROM is_dossier_contrat idc left outer join is_dossier_contrat_traitance idct on idc.traitance_id=idct.id
+#            where idc.name='"""+str(contrat)+"'"
+#        cr.execute(SQL)
+#        rows = cr.fetchall()
+#        for row in rows:
+
+#        return rows[0]
+
+
+
+    @api.multi
     def get_contrats(self):
-        contrats = self.env['is.dossier.contrat'].search([],order="name",limit=10)
-        return contrats
+        cr = self._cr
+        SQL="""
+            select 
+                idcd.codass1_id,
+                idcd.codass2_id,
+                idcd.codass3_id,
+                idcd.codass4_id,
+                idcd.montant1,
+                idcd.montant2,
+                idcd.montant3,
+                idcd.montant4,
+                ai.name,
+                ail.sequence,
+                idc.name,
+                id.numaff,
+                rp.name,
+                ail.is_contrat_detail_id,
+                ail.price_subtotal,
+                (ail.quantity-ail.is_deja_facture),
+                ail.is_invoice_id
+            from account_invoice_line ail inner join account_invoice             ai on ail.invoice_id=ai.id
+                                          inner join is_dossier_contrat         idc on ai.is_contrat_id=idc.id
+                                          inner join is_dossier_contrat_detail idcd on ail.is_contrat_detail_id=idcd.id
+                                          inner join res_partner                 rp on ai.partner_id=rp.id
+                                          inner join is_dossier                  id on idc.dossier_id=id.id
+            where 
+                ai.date_invoice>='2019-01-01' and
+                ai.date_invoice<='2019-12-31'
+            order by ai.name,ail.sequence
+        """
+
+        cr.execute(SQL)
+        rows = cr.fetchall()
+        #for row in result:
+        #    print(row)
+
+        nb=len(rows)
+        r={}
+        for row in rows:
+            contrat = row[10]
+            if contrat not in r:
+                r[contrat]={}
+
+            qty = row[15]
+            if qty:
+                if row[0]:
+                    if row[0] not in r[contrat]:
+                        r[contrat][row[0]]=0
+                    r[contrat][row[0]]+=row[4]*qty
+                if row[1]:
+                    if row[1] not in r[contrat]:
+                        r[contrat][row[1]]=0
+                    r[contrat][row[1]]+=row[5]*qty
+                if row[2]:
+                    if row[2] not in r[contrat]:
+                        r[contrat][row[2]]=0
+                    r[contrat][row[2]]+=row[6]*qty
+                if row[3]:
+                    if row[3] not in r[contrat]:
+                        r[contrat][row[3]]=0
+                    r[contrat][row[3]]+=row[7]*qty
+            #print(row[8],row[9],row[10],row[14],row[15])
+
+
+        #print('r =',r)
+        keys=sorted(r.keys(), reverse=True)
+
+
+        total=0
+        res=[]
+        recap={}
+        for k in keys:
+            #print contrat
+
+            lines={}
+            for code_id in r[k]:
+                montant = r[k][code_id]
+                code,ordre = self.getCodeAssurance(code_id)
+                lines[ordre]=[code,montant]
+
+            keys2=sorted(lines.keys(), reverse=False)
+
+            for k2 in keys2:
+                line    = lines[k2]
+                code    = line[0]
+                montant = line[1]
+
+                contrats = self.env['is.dossier.contrat'].search([('name','=',k)],order="name",limit=1)
+                if contrats:
+                    contrat=contrats[0]
+                    traitance = contrat.traitance_id.code or ''
+                    cle=code+' '+traitance
+                    if cle not in recap:
+                        recap[cle]=0
+                    recap[cle]+=montant
+
+
+                    #print contrat
+                    print(k,code,montant,traitance)
+                    vals={
+                        'contrat'  : contrat,
+                        'code'     : code,
+                        'traitance': traitance,
+                        'montant'  : montant,
+                    }
+                    res.append(vals)
+                    total+=r[k][code_id]
+
+        print('total =',total)
+
+        #print recap
+        for r in recap:
+            print(r, recap[r])
+
+        return [res,recap]
+
+
+        #contrats = self.env['is.dossier.contrat'].search([],order="name",limit=10)
+        #return contrats
+
+
+
 
 
 

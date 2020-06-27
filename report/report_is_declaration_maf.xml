@@ -35,11 +35,21 @@
 
     <template id="external_layout_standard">
         <div class="header">
-            header
+            <div class="row">
+                <div class="col-12" style="text-align:center">
+                    test
+                    <img t-att-src="'/is_dget/static/src/img/declaration-maf.png'" style="width:100%"/>
+                    test
+                </div>
+            </div>
         </div>
         <t t-raw="0"/>
         <div class="footer o_standard_footer">
-            footer
+            <div class="row">
+                <div class="col-12" style="text-align:center">
+                    Page <span class="page"/> / <span class="topage"/>
+                </div>
+            </div>
         </div>
     </template>
 
@@ -96,19 +106,38 @@
 
                 <h1>DÉCLARATION D'ASSURANCE ANNÉE <span t-field="o.name"/></h1>
 
+
+                <img t-att-src="'/is_dget/static/src/img/declaration-maf.png'" style="width:100%"/>
+
+                <img src="/is_dget/static/src/img/declaration-maf.png" title="toto"/>
+
+                <img t-att-src="'/is_dget/static/src/img/bandeau-dget.png'" style="width:100%"/>
+
                 <div style="page-break-after:always;" />
                 <table style="border:1px solid black; width:100%">
                     <thead>
                         <tr>
-                            <th style="border:1px solid black;text-align:left">Dossier</th>
-                            <th style="border:1px solid black;text-align:left">Contrat</th>
+                            <th style="border:1px solid black;text-align:left">Désignation de l'affaire</th>
+                            <th style="border:1px solid black;text-align:left">Code MAF</th>
+                            <th style="border:1px solid black;text-align:left">MISSIONS</th>
+                            <th style="border:1px solid black;text-align:left">Montant HT</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <t t-foreach="o.get_contrats()" t-as="c">
+                        <t t-foreach="o.get_contrats()[0]" t-as="c">
                             <tr>
-                                <td style="border:1px solid black;"><span t-field="c.dossier_id.numaff"/></td>
-                                <td style="border:1px solid black;"><span t-field="c.name"/></td>
+                                <td style="border:1px solid black;">
+                                    <div><b>Référence : </b><span t-esc="c['contrat'].name"/> : <span t-esc="c['contrat'].dossier_id.nom"/></div>
+                                    <div><b>Date début de mission : </b><span t-esc="c['contrat'].date.strftime('%d/%m/%Y')"/></div>
+                                    <div><b>Mission terminée : </b>Non</div>
+                                    <div><b>Client : </b><span t-esc="c['contrat'].client_id.name"/></div>
+                                    <div><span t-esc="c['contrat'].client_id.name"/> - <span t-esc="c['contrat'].client_id.zip"/><span t-esc="c['contrat'].client_id.street"/></div>
+                                    <div><b>Localisation du chantier : </b></div>
+                                    <div><span t-esc="c['contrat'].dossier_id.codepostal"/> <span t-esc="c['contrat'].dossier_id.lieu"/></div>
+                                </td>
+                                <td style="border:1px solid black;text-align:center"><span t-esc="c['code']"/></td>
+                                <td style="border:1px solid black;text-align:center"><span t-esc="c['traitance']"/></td>
+                                <td style="border:1px solid black;text-align:center"><span t-esc="'{:,.2f} €'.format(c['montant']).replace(',',' ').replace('.',',')"/></td>
                             </tr>
                         </t>
                     </tbody>
