@@ -4,6 +4,16 @@ import datetime
 from odoo.exceptions import Warning
 
 
+def _get_prefix_annee():
+    annee = datetime.date.today().year
+    annee = annee-1989
+    x = str(datetime.date.today())[-5:]
+    if x>='04-01':
+        annee+=1 # Si 1er avril, prendre l'année suivante
+    return(str(annee))
+
+
+
 class IsDossier(models.Model):
     _name = 'is.dossier'
     _description = "Dossier"
@@ -13,13 +23,7 @@ class IsDossier(models.Model):
 
     @api.multi
     def _get_numaff(self):
-
-        #Si 1er avril, prendre l'année suivante
-
-
-        annee = datetime.date.today().year
-        annee = annee-1989
-        prefix = str(annee)+'A'
+        prefix = _get_prefix_annee()+'A'
         dossiers=self.env['is.dossier'].search([('numaff','like',prefix)],order="numaff desc",limit=1)
         numaff=1
         for dossier in dossiers:
@@ -51,7 +55,11 @@ class IsDossier(models.Model):
     note_ids             = fields.One2many('is.dossier.note', 'dossier_id', u'Notes')
     referencee_ids       = fields.Many2many('is.dossier.reference', 'is_dossier_is_reference_rel', 'dossier_id', 'reference_id', u'Références')
     contrat_ids          = fields.One2many('is.dossier.contrat', 'dossier_id', u'Contrats')
-
+    state                = fields.Selection([
+            ('en cours' ,'En cours'),
+            ('termine'  ,'Terminé'),
+            ('abandonne','Abandonné'),
+        ],"Etat", default="en cours")
 
     @api.multi
     def name_get(self):
@@ -217,8 +225,7 @@ class IsDossierContrat(models.Model):
 
 
             #** Recherche du numéro de facture *********************************
-            prefix = obj.name[:2]
-            prefix = prefix+'FC'
+            prefix = _get_prefix_annee()+'FC'
             filtre=[
                 ('number','like',prefix),
             ]
@@ -306,9 +313,6 @@ class IsDossierContrat(models.Model):
             #*******************************************************************
 
             obj._compute_restant_ht()
-
-
-
 
 
 class IsDossierContratDetail(models.Model):
@@ -415,14 +419,12 @@ class IsSalarieHeure(models.Model):
     id_heures       = fields.Integer(u"id_heures", index=True)
 
 
-
-
 class IsDeclarationMAF(models.Model):
     _name = 'is.declaration.maf'
     _description = u"Déclaration MAF"
 
-    name        = fields.Char(u"Année", required=True, index=True)
-
+    name          = fields.Char(u"Année", required=True, index=True)
+    type_document = fields.Selection([('maf',u'Déclaration MAF'),('dget','DGET')],"Type de document", default='maf')
 
     @api.multi
     def getCodeAssurance(self,code_id):
@@ -438,24 +440,8 @@ class IsDeclarationMAF(models.Model):
         return code, ordre
 
 
-#    def getContrat(contrat):
-#        cr = self._cr
-#        SQL="""
-#            SELECT 
-#                idc.id contrat_id,
-#                idct.code traitance
-#            FROM is_dossier_contrat idc left outer join is_dossier_contrat_traitance idct on idc.traitance_id=idct.id
-#            where idc.name='"""+str(contrat)+"'"
-#        cr.execute(SQL)
-#        rows = cr.fetchall()
-#        for row in rows:
-
-#        return rows[0]
-
-
-
     @api.multi
-    def get_contrats(self):
+    def get_contrats(self,obj):
         cr = self._cr
         SQL="""
             select 
@@ -482,23 +468,18 @@ class IsDeclarationMAF(models.Model):
                                           inner join res_partner                 rp on ai.partner_id=rp.id
                                           inner join is_dossier                  id on idc.dossier_id=id.id
             where 
-                ai.date_invoice>='2019-01-01' and
-                ai.date_invoice<='2019-12-31'
+                ai.date_invoice>='"""+str(obj.name)+"""-01-01' and
+                ai.date_invoice<='"""+str(obj.name)+"""-12-31'
             order by ai.name,ail.sequence
         """
-
         cr.execute(SQL)
         rows = cr.fetchall()
-        #for row in result:
-        #    print(row)
-
         nb=len(rows)
         r={}
         for row in rows:
             contrat = row[10]
             if contrat not in r:
                 r[contrat]={}
-
             qty = row[15]
             if qty:
                 if row[0]:
@@ -517,32 +498,21 @@ class IsDeclarationMAF(models.Model):
                     if row[3] not in r[contrat]:
                         r[contrat][row[3]]=0
                     r[contrat][row[3]]+=row[7]*qty
-            #print(row[8],row[9],row[10],row[14],row[15])
-
-
-        #print('r =',r)
         keys=sorted(r.keys(), reverse=True)
-
-
         total=0
         res=[]
         recap={}
         for k in keys:
-            #print contrat
-
             lines={}
             for code_id in r[k]:
                 montant = r[k][code_id]
                 code,ordre = self.getCodeAssurance(code_id)
                 lines[ordre]=[code,montant]
-
             keys2=sorted(lines.keys(), reverse=False)
-
             for k2 in keys2:
                 line    = lines[k2]
                 code    = line[0].strip()
                 montant = line[1]
-
                 contrats = self.env['is.dossier.contrat'].search([('name','=',k)],order="name",limit=1)
                 if contrats:
                     contrat=contrats[0]
@@ -551,10 +521,6 @@ class IsDeclarationMAF(models.Model):
                     if cle not in recap:
                         recap[cle]=0
                     recap[cle]+=montant
-
-
-                    #print contrat
-                    print(k,code,montant,traitance)
                     vals={
                         'contrat'  : contrat,
                         'code'     : code,
@@ -563,24 +529,12 @@ class IsDeclarationMAF(models.Model):
                     }
                     res.append(vals)
                     total+=r[k][code_id]
-
-        print('total =',total)
-
-
         keys=sorted(recap.keys(), reverse=False)
-
-        #print recap
         recap2=[]
         for k in keys:
-            print(k,recap[k])
             recap2.append([k,recap[k]])
-
-
         return [res,recap2]
 
-
-        #contrats = self.env['is.dossier.contrat'].search([],order="name",limit=10)
-        #return contrats
 
 
 

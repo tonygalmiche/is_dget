@@ -75,7 +75,8 @@ class AccountInvoice(models.Model):
 
 class AccountInvoiceLine(models.Model):
     _inherit = "account.invoice.line"
-    _order = 'is_contrat_detail_id'
+    #_order = 'is_contrat_detail_id'
+    _order = 'sequence,id'
 
     is_contrat_detail_id = fields.Many2one('is.dossier.contrat.detail', u'Ligne Contrat', index=True)
     is_invoice_id        = fields.Many2one('account.invoice', u'Facture liée')
