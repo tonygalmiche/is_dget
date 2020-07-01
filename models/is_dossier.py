@@ -571,7 +571,7 @@ class IsConcoursQui(models.Model):
     _order = 'nom'
     _rec_name = 'nom'
 
-    concours_id    = fields.Many2one('is.dossier.contrat', 'Concours', required=True, ondelete='cascade')
+    concours_id    = fields.Many2one('is.concours', 'Concours', required=True, ondelete='cascade')
     nom            = fields.Char(u"Nom", required=True, index=True)
     dateenvoi      = fields.Date(u"Date d'envoi")
     retenu         = fields.Selection([('oui','Oui'),('non','Non')],"Gagné" , default='non')
