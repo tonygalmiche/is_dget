@@ -712,6 +712,82 @@
     </record>
 
 
+    <!-- is.concours -->
+    <record id="is_concours_form" model="ir.ui.view">
+        <field name="name">is.concours.form</field>
+        <field name="model">is.concours</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="numconcours"/>
+                            <field name="organisme_id" default_focus="1"/>
+                            <field name="nom"/>
+                            <field name="libelle_exacte"/>
+                            <field name="lieu"/>
+                            <field name="dateparution"/>
+                            <field name="daterendu"/>
+                            <field name="journal"/>
+                            <field name="lienannonce"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="qui_ids" nolabel="1">
+                            <tree editable="bottom">
+                                <field name="nom"/>
+                                <field name="dateenvoi"/>
+                                <field name="retenu"/>
+                                <field name="gagne"/>
+                                <field name="equipes"/>
+                            </tree>
+                        </field>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="is_concours_tree" model="ir.ui.view">
+        <field name="name">is.concours.tree</field>
+        <field name="model">is.concours</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="numconcours"/>
+                <field name="organisme_id"/>
+                <field name="nom"/>
+                <field name="libelle_exacte"/>
+                <field name="lieu"/>
+                <field name="dateparution"/>
+                <field name="daterendu"/>
+                <field name="journal"/>
+                <field name="lienannonce"/>
+            </tree>
+        </field>
+    </record>
+    <record id="is_concours_search" model="ir.ui.view">
+        <field name="name">is.concours.search</field>
+        <field name="model">is.concours</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="numconcours"/>
+                <field name="organisme_id"/>
+                <field name="nom"/>
+                <field name="libelle_exacte"/>
+                <field name="lieu"/>
+                <field name="journal"/>
+                <field name="lienannonce"/>
+           </search>
+        </field>
+    </record>
+    <record  id="is_concours_action" model="ir.actions.act_window">
+        <field name="name">Concours</field>
+        <field name="res_model">is.concours</field>
+        <field name="view_type">form</field>
+        <field name="limit">200</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+
 
 
 

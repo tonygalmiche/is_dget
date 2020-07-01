@@ -536,10 +536,46 @@ class IsDeclarationMAF(models.Model):
         return [res,recap2]
 
 
+class IsConcours(models.Model):
+    _name = 'is.concours'
+    _description = u"Concours"
+    _order = 'numconcours desc'
+    _rec_name = 'numconcours'
+
+    @api.multi
+    def _get_numconcours(self):
+        prefix = _get_prefix_annee()+'CO'
+        rows=self.env['is.concours'].search([('numconcours','like',prefix)],order="numconcours desc",limit=1)
+        numconcours=1
+        for row in rows:
+            numconcours = int(row.numconcours[-3:])
+            numconcours+=1
+        numconcours=prefix+('000'+str(numconcours))[-3:]
+        return numconcours
+
+    numconcours    = fields.Char(u"Numero de concours", required=True, index=True, default=lambda self: self._get_numconcours())
+    organisme_id   = fields.Many2one('res.partner', u"Organisme", domain=[('is_company','=',True)])
+    nom            = fields.Char(u"Nom du concours")
+    libelle_exacte = fields.Text(u"Libelle exacte")
+    lieu           = fields.Char(u"Lieu")
+    dateparution   = fields.Date(u"Date de parution")
+    daterendu      = fields.Date(u"Date rendu")
+    journal        = fields.Char(u"Journal")
+    lienannonce    = fields.Char(u"Lien annonce")
+    qui_ids        = fields.One2many('is.concours.qui', 'concours_id', u'Equipes')
 
 
+class IsConcoursQui(models.Model):
+    _name = 'is.concours.qui'
+    _description = u"Concours Qui"
+    _order = 'nom'
+    _rec_name = 'nom'
 
-
-
+    concours_id  = fields.Many2one('is.dossier.contrat', 'Concours', required=True, ondelete='cascade')
+    nom          = fields.Char(u"Nom", required=True, index=True)
+    dateenvoi    = fields.Date(u"Date d'envoi")
+    retenu       = fields.Selection([('oui','Oui'),('non','Non')],"Gagné" , default='non')
+    gagne        = fields.Selection([('oui','Oui'),('non','Non')],"Retenu", default='non')
+    equipes      = fields.Text(u"Equipes")
 
 

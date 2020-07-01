@@ -21,6 +21,15 @@
             action="is_adresses_action"
         />
 
+     <!-- Concours -->
+        <menuitem   
+            name="Concours"  
+            id="is_concours_main_menu"
+            parent="is_dget_main_menu"
+            sequence="15"
+            action="is_concours_action"
+        />
+
 
         <!-- Dossiers -->
         <menuitem   
