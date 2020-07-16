@@ -26,9 +26,9 @@
                 <field name="is_specialite_ids"            attrs="{'invisible': ['|',('is_company','=', False),('customer','=', False)]}"  widget="many2many_tags"/>
             </field>
             <field name="website" position="after">
-                <field name="is_acces_pro_url"   attrs="{'invisible': ['|',('is_company','=', False),('supplier','=', False)]}"  widget="url"/>
-                <field name="is_acces_pro_login" attrs="{'invisible': ['|',('is_company','=', False),('supplier','=', False)]}"/>
-                <field name="is_acces_pro_pwd"   attrs="{'invisible': ['|',('is_company','=', False),('supplier','=', False)]}"/>
+                <field name="is_acces_pro_url"     attrs="{'invisible': ['|',('is_company','=', False),('supplier','=', False)]}"  widget="url"/>
+                <field name="is_acces_pro_login"   attrs="{'invisible': ['|',('is_company','=', False),('supplier','=', False)]}"/>
+                <field name="is_acces_pro_pwd"     attrs="{'invisible': ['|',('is_company','=', False),('supplier','=', False)]}"/>
             </field>
         </field>
     </record>

@@ -36,6 +36,8 @@
                             <field name="description_complete"/>
                             <field name="numconcours"/>
                             <field name="surface"/>
+                            <field name="service_executant"/>
+                            <field name="num_marche"/>
                             <field name="site_internet"/>
                             <field name="nota"/>
                         </group>

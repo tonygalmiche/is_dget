@@ -52,6 +52,8 @@ class IsDossier(models.Model):
     fiche                = fields.Selection([('oui','Oui'),('non','Non')],"Fiche")
     distance             = fields.Float("Distance")
     duree                = fields.Float("Durée")
+    service_executant    = fields.Char(u"Service exécutant", help=u"Nécessaire pour Chorus Pro")
+    num_marche           = fields.Char(u"N° marché"        , help=u"Nécessaire pour Chorus Pro")
     note_ids             = fields.One2many('is.dossier.note', 'dossier_id', u'Notes')
     referencee_ids       = fields.Many2many('is.dossier.reference', 'is_dossier_is_reference_rel', 'dossier_id', 'reference_id', u'Références')
     contrat_ids          = fields.One2many('is.dossier.contrat', 'dossier_id', u'Contrats')
