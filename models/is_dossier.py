@@ -134,7 +134,7 @@ class IsDossierContrat(models.Model):
     _order = 'name desc'
 
     @api.depends('detail_ids')
-    def _compute_restant_ht(self):
+    def compute_restant_ht(self):
         for obj in self:
             restant_ht    = 0
             facturable_ht = 0
@@ -177,8 +177,8 @@ class IsDossierContrat(models.Model):
     traitance_id  = fields.Many2one('is.dossier.contrat.traitance', u"Traitance", index=True)
     invoice_ids   = fields.One2many('account.invoice', 'is_contrat_id', u'Factures', domain=[('state','not in',['cancel'])], readonly=True)
     detail_ids    = fields.One2many('is.dossier.contrat.detail', 'contrat_id', u'Détail')
-    restant_ht    = fields.Float(u"Restant HT"   , digits=(14,2), compute='_compute_restant_ht', readonly=True, store=True)
-    facturable_ht = fields.Float(u"Facturable HT", digits=(14,2), compute='_compute_restant_ht', readonly=True, store=True)
+    restant_ht    = fields.Float(u"Restant HT"   , digits=(14,2), compute='compute_restant_ht', readonly=True, store=True)
+    facturable_ht = fields.Float(u"Facturable HT", digits=(14,2), compute='compute_restant_ht', readonly=True, store=True)
     heure_ids     = fields.One2many('is.salarie.heure', 'contrat_id', u'Heures', readonly=True)
 
 
@@ -314,7 +314,7 @@ class IsDossierContrat(models.Model):
                 continue
             #*******************************************************************
 
-            obj._compute_restant_ht()
+            obj.compute_restant_ht()
 
 
 class IsDossierContratDetail(models.Model):
