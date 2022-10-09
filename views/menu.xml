@@ -22,13 +22,25 @@
         />
 
      <!-- Concours -->
-        <menuitem   
+        <!-- <menuitem   
             name="Concours"  
             id="is_concours_main_menu"
             parent="is_dget_main_menu"
             sequence="15"
             action="is_concours_action"
         />
+ -->
+        <record id="is_concours_main_menu" model="ir.ui.menu" >
+            <field name="name">Concours</field>
+            <field name="sequence">15</field>
+            <field name="action"    ref="is_concours_action"/>
+            <field name="parent_id" eval="ref('is_dget_main_menu')"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('sales_team.group_sale_manager'),
+            ])]"/>
+        </record>
+
+
 
 
         <!-- Dossiers -->
@@ -42,12 +54,24 @@
 
 
         <!-- Contrats -->
-        <menuitem   
+        <!-- <menuitem   
             name="Contrats"  
             id="is_contrat_main_menu"
             parent="is_dget_main_menu"
             sequence="25"
-        />
+        /> -->
+
+        <record id="is_contrat_main_menu" model="ir.ui.menu" >
+            <field name="name">Contrats</field>
+            <field name="sequence">25</field>
+            <field name="parent_id" eval="ref('is_dget_main_menu')"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('sales_team.group_sale_manager'),
+            ])]"/>
+        </record>
+
+
+
         <menuitem
             id="is_dossier_contrat_restant_menu"
             name="Contrats en cours"
@@ -93,24 +117,43 @@
 
 
         <!-- Factures -->
-        <menuitem   
+        <!-- <menuitem   
             name="Factures"  
             id="is_account_invoice_menu"
             parent="is_dget_main_menu"
             sequence="30"
             action="is_account_invoice_action"
-        />
+        /> -->
+        <record id="is_account_invoice_menu" model="ir.ui.menu" >
+            <field name="name">Factures</field>
+            <field name="sequence">30</field>
+            <field name="action"    ref="is_account_invoice_action"/>
+            <field name="parent_id" eval="ref('is_dget_main_menu')"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('sales_team.group_sale_manager'),
+            ])]"/>
+        </record>
 
 
 
         <!-- Factures -->
-        <menuitem   
+        <!-- <menuitem   
             name="Déclaration MAF"  
             id="is_declaration_maf_menu"
             parent="is_dget_main_menu"
             sequence="35"
             action="is_declaration_maf_action"
         />
+ -->
+        <record id="is_declaration_maf_menu" model="ir.ui.menu" >
+            <field name="name">Déclaration MAF</field>
+            <field name="sequence">35</field>
+            <field name="action"    ref="is_declaration_maf_action"/>
+            <field name="parent_id" eval="ref('is_dget_main_menu')"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('sales_team.group_sale_manager'),
+            ])]"/>
+        </record>
 
 
         <!-- Documentation -->
@@ -124,12 +167,14 @@
 
 
         <!-- Tables -->
-        <menuitem   
-            name="Tables"  
-            id="is_tables_menu"
-            parent="is_dget_main_menu"
-            sequence="90"
-        />
+        <record id="is_tables_menu" model="ir.ui.menu" >
+            <field name="name">Tables</field>
+            <field name="sequence">90</field>
+            <field name="parent_id" eval="ref('is_dget_main_menu')"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('sales_team.group_sale_manager'),
+            ])]"/>
+        </record>
         <menuitem
             id="is_classement_menu"
             name="Classement"

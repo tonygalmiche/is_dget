@@ -12,6 +12,7 @@
                         name="creation_contrat_action"
                         type="object"
                         string="Nouveau contrat"
+                        groups="sales_team.group_sale_manager"
                     />
                     <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
                 </header>
@@ -214,6 +215,7 @@
                             <field name="description" default_focus="1"/>
                             <field name="signe"/>
                             <field name="client_id"/>
+                            <field name="tva_id" required="1"/>
                             <field name="notes"/>
                         </group>
                         <group>

@@ -181,6 +181,8 @@ class IsDossierContrat(models.Model):
     restant_ht    = fields.Float(u"Restant HT"   , digits=(14,2), compute='compute_restant_ht', readonly=True, store=True)
     facturable_ht = fields.Float(u"Facturable HT", digits=(14,2), compute='compute_restant_ht', readonly=True, store=True)
     heure_ids     = fields.One2many('is.salarie.heure', 'contrat_id', u'Heures', readonly=True)
+    tva_id        = fields.Many2one('is.tva', u'TVA')
+
 
 
 # TODO : La numérotation automatique pose problème à l'importation et pour faire le lien avec les factures si modification de celle-ci
@@ -250,6 +252,7 @@ class IsDossierContrat(models.Model):
                 'partner_id'        : obj.client_id.id,
                 'is_contrat_id'     : obj.id,
                 'fiscal_position_id': 1,
+                'is_tva_id'         : obj.tva_id.id,
                 'type'              : 'out_invoice',
                 'state'             : 'draft',
             }
@@ -308,6 +311,7 @@ class IsDossierContrat(models.Model):
 
 
             #** Recalcul de la TVA et validation de la facture *****************
+            res_validate = invoice.update_tva_account_action()
             res_validate = invoice.compute_taxes()
             try:
                 res_validate = invoice.action_invoice_open()
