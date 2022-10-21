@@ -468,7 +468,26 @@ class IsDeclarationMAF(models.Model):
                 ail.is_contrat_detail_id,
                 ail.price_subtotal,
                 (ail.quantity-ail.is_deja_facture),
-                ail.is_invoice_id
+                ail.is_invoice_id,
+
+                ai.is_montant_revision,
+
+                (ail.quantity-ail.is_deja_facture)*idcd.montant1/NullIf(((ail.quantity-ail.is_deja_facture)*ail.price_unit),0) rapport1,
+                (ail.quantity-ail.is_deja_facture)*idcd.montant2/NullIf(((ail.quantity-ail.is_deja_facture)*ail.price_unit),0) rapport2,
+                (ail.quantity-ail.is_deja_facture)*idcd.montant3/NullIf(((ail.quantity-ail.is_deja_facture)*ail.price_unit),0) rapport3,
+                (ail.quantity-ail.is_deja_facture)*idcd.montant4/NullIf(((ail.quantity-ail.is_deja_facture)*ail.price_unit),0) rapport4,
+
+                (ail.quantity-ail.is_deja_facture)*ail.price_unit/NullIf(ai.is_montant_hors_revision,0) rapport_total,
+
+                (ail.quantity-ail.is_deja_facture)*idcd.montant1 + ((ail.quantity-ail.is_deja_facture)*idcd.montant1/NullIf(((ail.quantity-ail.is_deja_facture)*ail.price_unit),0)) * ((ail.quantity-ail.is_deja_facture)*ail.price_unit/NullIf(ai.is_montant_hors_revision,0)) * ai.is_montant_revision revision1,
+                (ail.quantity-ail.is_deja_facture)*idcd.montant2 + ((ail.quantity-ail.is_deja_facture)*idcd.montant2/NullIf(((ail.quantity-ail.is_deja_facture)*ail.price_unit),0)) * ((ail.quantity-ail.is_deja_facture)*ail.price_unit/NullIf(ai.is_montant_hors_revision,0)) * ai.is_montant_revision revision2,
+                (ail.quantity-ail.is_deja_facture)*idcd.montant3 + ((ail.quantity-ail.is_deja_facture)*idcd.montant3/NullIf(((ail.quantity-ail.is_deja_facture)*ail.price_unit),0)) * ((ail.quantity-ail.is_deja_facture)*ail.price_unit/NullIf(ai.is_montant_hors_revision,0)) * ai.is_montant_revision revision3,
+                (ail.quantity-ail.is_deja_facture)*idcd.montant4 + ((ail.quantity-ail.is_deja_facture)*idcd.montant4/NullIf(((ail.quantity-ail.is_deja_facture)*ail.price_unit),0)) * ((ail.quantity-ail.is_deja_facture)*ail.price_unit/NullIf(ai.is_montant_hors_revision,0)) * ai.is_montant_revision revision4
+
+
+
+
+
             from account_invoice_line ail inner join account_invoice             ai on ail.invoice_id=ai.id
                                           inner join is_dossier_contrat         idc on ai.is_contrat_id=idc.id
                                           inner join is_dossier_contrat_detail idcd on ail.is_contrat_detail_id=idcd.id
@@ -492,19 +511,27 @@ class IsDeclarationMAF(models.Model):
                 if row[0]:
                     if row[0] not in r[contrat]:
                         r[contrat][row[0]]=0
-                    r[contrat][row[0]]+=row[4]*qty
+                    #r[contrat][row[0]]+=row[4]*qty
+                    r[contrat][row[0]]+=row[23]
+
                 if row[1]:
                     if row[1] not in r[contrat]:
                         r[contrat][row[1]]=0
-                    r[contrat][row[1]]+=row[5]*qty
+                    #r[contrat][row[1]]+=row[5]*qty
+                    r[contrat][row[1]]+=row[24]
+
                 if row[2]:
                     if row[2] not in r[contrat]:
                         r[contrat][row[2]]=0
-                    r[contrat][row[2]]+=row[6]*qty
+                    #r[contrat][row[2]]+=row[6]*qty
+                    r[contrat][row[2]]+=row[25]
+
                 if row[3]:
                     if row[3] not in r[contrat]:
                         r[contrat][row[3]]=0
-                    r[contrat][row[3]]+=row[7]*qty
+                    #r[contrat][row[3]]+=row[7]*qty
+                    r[contrat][row[3]]+=row[26]
+
         keys=sorted(r.keys(), reverse=True)
         total=0
         res=[]

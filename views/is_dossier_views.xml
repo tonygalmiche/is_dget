@@ -306,6 +306,8 @@
                                 <field name="date_invoice"/>
                                 <field name="date_due"/>
                                 <field name="amount_untaxed_invoice_signed" sum="Total" string="Montant HT"/>
+                                <field name="is_montant_revision"           sum="Total"/>
+                                <field name="is_montant_hors_revision"      sum="Total"/>
                                 <field name="state" string="État"/>
                             </tree>
                         </field>

@@ -37,8 +37,8 @@ class is_account_invoice_line(models.Model):
 
     sequence    = fields.Integer("Séquence")
 
-    price_subtotal    = fields.Float("Montant HT", digits=(14,2))
-
+    price_subtotal      = fields.Float("Montant HT"      , digits=(14,2))
+    is_montant_revision = fields.Float("Montant révision", digits=(14,4))
 
     total1      = fields.Float("Total 1", digits=(14,4))
     total2      = fields.Float("Total 2", digits=(14,4))
@@ -46,12 +46,17 @@ class is_account_invoice_line(models.Model):
     total4      = fields.Float("Total 4", digits=(14,4))
     total_ligne = fields.Float("Total ligne", digits=(14,4))
 
+    rapport1      = fields.Float("Rapport 1"    , digits=(14,4))
+    rapport2      = fields.Float("Rapport 2"    , digits=(14,4))
+    rapport3      = fields.Float("Rapport 3"    , digits=(14,4))
+    rapport4      = fields.Float("Rapport 4"    , digits=(14,4))
+    rapport_total = fields.Float("Rapport Total", digits=(14,4))
 
-    # state                  = fields.Selection([
-    #         ('brouillon', u'Brouillon'),
-    #         ('diffuse'  , u'Diffusé'),
-    #         ('valide'   , u'Validé'),
-    #     ], u"État")
+    revision1     = fields.Float("Montant révisé 1"    , digits=(14,4))
+    revision2     = fields.Float("Montant révisé 2"    , digits=(14,4))
+    revision3     = fields.Float("Montant révisé 3"    , digits=(14,4))
+    revision4     = fields.Float("Montant révisé 4"    , digits=(14,4))
+
 
 
  
@@ -65,6 +70,7 @@ class is_account_invoice_line(models.Model):
                     ai.id invoice_id,
                     ai.date_invoice,
                     ai.partner_id,
+                    ai.is_montant_revision,
                     ail.id invoice_line_id,
 
                     idcd.codass1_id,
@@ -87,7 +93,23 @@ class is_account_invoice_line(models.Model):
                     (ail.quantity-ail.is_deja_facture)*idcd.montant2 total2,
                     (ail.quantity-ail.is_deja_facture)*idcd.montant3 total3,
                     (ail.quantity-ail.is_deja_facture)*idcd.montant4 total4,
-                    (ail.quantity-ail.is_deja_facture)*(idcd.montant1+idcd.montant2+idcd.montant3+idcd.montant4) total_ligne
+                    (ail.quantity-ail.is_deja_facture)*(idcd.montant1+idcd.montant2+idcd.montant3+idcd.montant4) total_ligne,
+
+
+
+                    (ail.quantity-ail.is_deja_facture)*idcd.montant1/NullIf(((ail.quantity-ail.is_deja_facture)*ail.price_unit),0) rapport1,
+                    (ail.quantity-ail.is_deja_facture)*idcd.montant2/NullIf(((ail.quantity-ail.is_deja_facture)*ail.price_unit),0) rapport2,
+                    (ail.quantity-ail.is_deja_facture)*idcd.montant3/NullIf(((ail.quantity-ail.is_deja_facture)*ail.price_unit),0) rapport3,
+                    (ail.quantity-ail.is_deja_facture)*idcd.montant4/NullIf(((ail.quantity-ail.is_deja_facture)*ail.price_unit),0) rapport4,
+
+                    (ail.quantity-ail.is_deja_facture)*ail.price_unit/NullIf(ai.is_montant_hors_revision,0) rapport_total,
+
+                    (ail.quantity-ail.is_deja_facture)*idcd.montant1 + ((ail.quantity-ail.is_deja_facture)*idcd.montant1/NullIf(((ail.quantity-ail.is_deja_facture)*ail.price_unit),0)) * ((ail.quantity-ail.is_deja_facture)*ail.price_unit/NullIf(ai.is_montant_hors_revision,0)) * ai.is_montant_revision revision1,
+                    (ail.quantity-ail.is_deja_facture)*idcd.montant2 + ((ail.quantity-ail.is_deja_facture)*idcd.montant2/NullIf(((ail.quantity-ail.is_deja_facture)*ail.price_unit),0)) * ((ail.quantity-ail.is_deja_facture)*ail.price_unit/NullIf(ai.is_montant_hors_revision,0)) * ai.is_montant_revision revision2,
+                    (ail.quantity-ail.is_deja_facture)*idcd.montant3 + ((ail.quantity-ail.is_deja_facture)*idcd.montant3/NullIf(((ail.quantity-ail.is_deja_facture)*ail.price_unit),0)) * ((ail.quantity-ail.is_deja_facture)*ail.price_unit/NullIf(ai.is_montant_hors_revision,0)) * ai.is_montant_revision revision3,
+                    (ail.quantity-ail.is_deja_facture)*idcd.montant4 + ((ail.quantity-ail.is_deja_facture)*idcd.montant4/NullIf(((ail.quantity-ail.is_deja_facture)*ail.price_unit),0)) * ((ail.quantity-ail.is_deja_facture)*ail.price_unit/NullIf(ai.is_montant_hors_revision,0)) * ai.is_montant_revision revision4
+
+
 
 
 
@@ -96,6 +118,7 @@ class is_account_invoice_line(models.Model):
                                         left join is_dossier_contrat         idc on ai.is_contrat_id=idc.id
                                         left join is_dossier_contrat_detail idcd on ail.is_contrat_detail_id=idcd.id
                                         left join is_dossier                  id on idc.dossier_id=id.id
+                where ai.state not in ('draft','cancel')
             )
         """)
 

@@ -38,6 +38,17 @@
                             <field name="total3"/>
                             <field name="total4"/>
                             <field name="total_ligne"/>
+
+                            <field name="rapport1"/>
+                            <field name="rapport2"/>
+                            <field name="rapport3"/>
+                            <field name="rapport4"/>
+                            <field name="rapport_total" sum="Total"/>
+
+                            <field name="revision1"      sum="Total"/>
+                            <field name="revision2"      sum="Total"/>
+                            <field name="revision3"      sum="Total"/>
+                            <field name="revision4"      sum="Total"/>
                         </group>
                     </group>
                 </sheet>
@@ -57,16 +68,17 @@
                 <field name="contrat_id"/>
                 <field name="is_contrat_detail_id"/>
                 <field name="quantity"/>
-                <field name="total1" sum="Total"/>
+                <field name="revision1" sum="Total"/>
                 <field name="codass1_id"/>
-                <field name="total2" sum="Total"/>
+                <field name="revision2" sum="Total"/>
                 <field name="codass2_id"/>
-                <field name="total3" sum="Total"/>
+                <field name="revision3" sum="Total"/>
                 <field name="codass3_id"/>
-                <field name="total4" sum="Total"/>
+                <field name="revision4" sum="Total"/>
                 <field name="codass4_id"/>
                 <field name="total_ligne" sum="Total"/>
-                <field name="price_subtotal" sum="Total"/>
+                <field name="price_subtotal"      sum="Total"/>
+                <field name="is_montant_revision" sum="Total"/>
             </tree>
         </field>
     </record>
