@@ -540,6 +540,10 @@ class IsDeclarationMAF(models.Model):
         recap2=[]
         for k in keys:
             recap2.append([k,recap[k]])
+
+
+        print(res)
+
         return [res,recap2]
 
 

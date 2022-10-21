@@ -607,6 +607,12 @@
                 <field name="contrat_id"/>
                 <field name="phase_id"/>
                 <field name="texte"/>
+
+                <field name="codass1_id" string="Code assurance"
+                       filter_domain="['|','|','|', ('codass1_id','=',self), ('codass2_id','=',self), ('codass3_id', '=', self), ('codass4_id', '=', self)]"/>
+
+
+
            </search>
         </field>
     </record>
@@ -616,6 +622,37 @@
         <field name="view_type">form</field>
         <field name="limit">200</field>
         <field name="view_mode">tree,form</field>
+    </record>
+
+
+
+    <record id="is_dossier_contrat_detail_maf_tree" model="ir.ui.view">
+        <field name="name">is_dossier_contrat_detail_maf_tree</field>
+        <field name="model">is.dossier.contrat.detail</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="contrat_id"/>
+                <field name="numligne"/>
+                <field name="phase_id"/>
+                <field name="texte"/>
+                <field name="montant1" sum="Total"/>
+                <field name="codass1_id"/>
+                <field name="montant2" sum="Total"/>
+                <field name="codass2_id"/>
+                <field name="montant3" sum="Total"/>
+                <field name="codass3_id"/>
+                <field name="montant4" sum="Total"/>
+                <field name="codass4_id"/>
+            </tree>
+        </field>
+    </record>
+    <record  id="is_dossier_contrat_detail_maf_action" model="ir.actions.act_window">
+        <field name="name">Détail contrat MAF</field>
+        <field name="res_model">is.dossier.contrat.detail</field>
+        <field name="view_type">form</field>
+        <field name="limit">200</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="is_dget.is_dossier_contrat_detail_maf_tree"/>
     </record>
 
 
