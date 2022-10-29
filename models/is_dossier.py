@@ -512,25 +512,25 @@ class IsDeclarationMAF(models.Model):
                     if row[0] not in r[contrat]:
                         r[contrat][row[0]]=0
                     #r[contrat][row[0]]+=row[4]*qty
-                    r[contrat][row[0]]+=row[23]
+                    r[contrat][row[0]]+=row[23] or 0
 
                 if row[1]:
                     if row[1] not in r[contrat]:
                         r[contrat][row[1]]=0
                     #r[contrat][row[1]]+=row[5]*qty
-                    r[contrat][row[1]]+=row[24]
+                    r[contrat][row[1]]+=row[24] or 0
 
                 if row[2]:
                     if row[2] not in r[contrat]:
                         r[contrat][row[2]]=0
                     #r[contrat][row[2]]+=row[6]*qty
-                    r[contrat][row[2]]+=row[25]
+                    r[contrat][row[2]]+=row[25] or 0
 
                 if row[3]:
                     if row[3] not in r[contrat]:
                         r[contrat][row[3]]=0
                     #r[contrat][row[3]]+=row[7]*qty
-                    r[contrat][row[3]]+=row[26]
+                    r[contrat][row[3]]+=row[26] or 0
 
         keys=sorted(r.keys(), reverse=True)
         total=0
@@ -541,7 +541,8 @@ class IsDeclarationMAF(models.Model):
             for code_id in r[k]:
                 montant = r[k][code_id]
                 code,ordre = self.getCodeAssurance(code_id)
-                lines[ordre]=[code,montant]
+                if code!="ND":
+                    lines[ordre]=[code,montant]
             keys2=sorted(lines.keys(), reverse=False)
             for k2 in keys2:
                 line    = lines[k2]
