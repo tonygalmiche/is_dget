@@ -185,6 +185,16 @@
 
 
     <!-- is.dossier.contrat -->
+    <record id="update_restant_ht_action_server" model="ir.actions.server">
+        <field name="name">Actualiser Restant HT et Facturable HT</field>
+        <field name="type">ir.actions.server</field>
+        <field name="state">code</field>
+        <field name="model_id" ref="is_dget.model_is_dossier_contrat"/>
+        <field name="binding_model_id" ref="is_dget.model_is_dossier_contrat"/>
+        <field name="code">
+            records.update_restant_ht_action()
+        </field>
+    </record>
     <record id="is_dossier_contrat_form" model="ir.ui.view">
         <field name="name">is.dossier.contrat.form</field>
         <field name="model">is.dossier.contrat</field>
@@ -215,7 +225,7 @@
                             <field name="description" default_focus="1"/>
                             <field name="signe"/>
                             <field name="client_id"/>
-                            <field name="tva_id" required="1"/>
+                            <field name="tva_id" required="0"/>
                             <field name="notes"/>
                         </group>
                         <group>
@@ -240,7 +250,9 @@
                                 <field name="nota"/>
                                 <field name="facturable"/>
                                 <field name="a_facturer"/>
-                                <field name="facture"    readonly="1"/>
+                                <field name="facture"/>
+                                <field name="montant_facture"    sum="Total"/>
+                                <field name="montant_a_facturer" sum="Total"/>
                                 <!--<field name="facture_le" readonly="1"/>-->
                             </tree>
                             <form>

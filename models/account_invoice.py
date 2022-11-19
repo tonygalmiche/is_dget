@@ -68,8 +68,9 @@ class AccountInvoice(models.Model):
     def update_tva_account_action(self):
         for obj in self:
             for line in obj.invoice_line_ids:
-                line.account_id = obj.is_tva_id.account_id.id
-                line.invoice_line_tax_ids = [(6,0,[obj.is_tva_id.tax_id.id])]
+                if line.product_id:
+                    line.account_id = obj.is_tva_id.account_id.id
+                    line.invoice_line_tax_ids = [(6,0,[obj.is_tva_id.tax_id.id])]
             obj.compute_taxes()
         return True
 

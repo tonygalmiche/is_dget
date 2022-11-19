@@ -198,6 +198,12 @@ class IsDossierContrat(models.Model):
 
 
     @api.multi
+    def update_restant_ht_action(self):
+        for obj in self:
+            obj.compute_restant_ht()
+
+
+    @api.multi
     def acceder_contrat_action(self, vals):
         for obj in self:
             res= {
@@ -262,25 +268,36 @@ class IsDossierContrat(models.Model):
 
             #** Création lignes du contrat *************************************
             for line in obj.detail_ids:
-                quantity = line.a_facturer/100.0
-                vals={
-                    'invoice_id': invoice_id,
-                    'is_contrat_detail_id': line.id,
-                    'product_id': 1,
-                    'name'      : line.texte,
-                    'quantity'  : quantity,
-                    'price_unit': line.montant_ht,
-                    'account_id': 622, #701100
-                }
-                invoice_line=self.env['account.invoice.line'].create(vals)
-                line_res = invoice_line.uptate_onchange_product_id()
-                vals={
-                    'name'      : line.texte,
-                    'price_unit': line.montant_ht,
-                }
-                invoice_line.write(vals)
+                if line.commentaire:
+                    vals={
+                        'invoice_id': invoice_id,
+                        'is_contrat_detail_id': line.id,
+                        'display_type': 'line_note',
+                        'name'      : line.texte,
+                        'quantity'  : False,
+                        'price_unit': False,
+                        'account_id': False,
+                    }
+                    invoice_line=self.env['account.invoice.line'].create(vals)
+                else:
+                    quantity = line.a_facturer/100.0
+                    vals={
+                        'invoice_id': invoice_id,
+                        'is_contrat_detail_id': line.id,
+                        'product_id': 1,
+                        'name'      : line.texte,
+                        'quantity'  : quantity,
+                        'price_unit': line.montant_ht,
+                        'account_id': 622, #701100
+                    }
+                    invoice_line=self.env['account.invoice.line'].create(vals)
+                    line_res = invoice_line.uptate_onchange_product_id()
+                    vals={
+                        'name'      : line.texte,
+                        'price_unit': line.montant_ht,
+                    }
+                    invoice_line.write(vals)
             #*******************************************************************
-
 
             #** Ajout des factures réalisées ***********************************
             filtre=[
@@ -296,7 +313,8 @@ class IsDossierContrat(models.Model):
                     'product_id'   : 2,
                     'name'         : facture.number,
                     'quantity'     : 1,
-                    'price_unit'   : -facture.amount_untaxed,
+                    #'price_unit'   : -facture.amount_untaxed,
+                    'price_unit'   : 0,
                     'account_id'   : 622, #701100
                     'is_invoice_id': facture.id,
                 }
@@ -304,11 +322,11 @@ class IsDossierContrat(models.Model):
                 line_res = invoice_line.uptate_onchange_product_id()
                 vals={
                     'name'      : facture.number,
-                    'price_unit': -facture.amount_untaxed,
+                    #'price_unit': -facture.amount_untaxed,
+                    'price_unit'   : -facture.is_montant_hors_revision,
                 }
                 invoice_line.write(vals)
             #*******************************************************************
-
 
             #** Recalcul de la TVA et validation de la facture *****************
             res_validate = invoice.update_tva_account_action()
@@ -339,7 +357,7 @@ class IsDossierContratDetail(models.Model):
     def _compute_facture(self):
         cr = self._cr
         for obj in self:
-            facture=0
+            montant_a_facturer=montant_facture=facture=0
             if obj.montant_ht>0 and obj.id:
                 SQL="""
                     select max(ail.price_subtotal)
@@ -354,7 +372,11 @@ class IsDossierContratDetail(models.Model):
                 for row in result:
                     montant = row[0] or 0
                 facture=100.0*montant/obj.montant_ht
+                montant_facture = montant
+                montant_a_facturer = obj.montant_ht*(obj.a_facturer-facture)/100
             obj.facture=facture
+            obj.montant_a_facturer=montant_a_facturer
+            obj.montant_facture=montant_facture
 
 
     contrat_id  = fields.Many2one('is.dossier.contrat', 'Contrat', required=True, ondelete='cascade')
@@ -386,7 +408,12 @@ class IsDossierContratDetail(models.Model):
     nota        = fields.Char(u"Nota")
     facturable  = fields.Selection([('oui','Oui'),('non','Non')],"Facturable", default='oui')
     a_facturer  = fields.Float(u"% à facturer")
-    facture     = fields.Float(u"% facturé", compute='_compute_facture', readonly=True, store=False)
+    facture            = fields.Float(u"% facturé"         , compute='_compute_facture', readonly=True, store=False)
+    montant_a_facturer = fields.Float(u"Montant à facturer", compute='_compute_facture', readonly=True, store=False)
+    montant_facture    = fields.Float(u"Montant facturé"   , compute='_compute_facture', readonly=True, store=False)
+
+
+
     facture_le  = fields.Date(u"Pour le")
 
 
@@ -569,10 +596,6 @@ class IsDeclarationMAF(models.Model):
         recap2=[]
         for k in keys:
             recap2.append([k,recap[k]])
-
-
-        print(res)
-
         return [res,recap2]
 
 
