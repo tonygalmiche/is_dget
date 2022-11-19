@@ -230,8 +230,9 @@
                     </group>
                     <group string="Composition du contrat">
                         <field name="detail_ids" nolabel="1" context="{'dossier_id': active_id,'test':id}">
-                            <tree>
+                            <tree decoration-info="commentaire == True">
                                 <field name="numligne" widget="handle"/>
+                                <field name="commentaire" invisible="1"/>
                                 <field name="phase_id"/>
                                 <field name="texte"/>
                                 <field name="montant_ht" sum="Total"/>
@@ -246,11 +247,15 @@
                                 <group>
                                     <group>
                                         <field name="numligne" readonly="1"/>
-                                        <field name="phase_id" required="1"/>
+                                        <field name="commentaire"/>
+                                        <field 
+                                            name="phase_id" 
+                                            attrs="{'invisible': [('commentaire','==', True)], 'required': [('commentaire','==', False)]}"
+                                        />
                                         <field name="texte"    required="1"/>
-                                        <field name="avancement"/>
+                                        <field name="avancement" attrs="{'invisible': [('commentaire','==', True)]}"/>
                                     </group>
-                                    <group>
+                                    <group  attrs="{'invisible': [('commentaire','==', True)]}">
                                         <field name="nota"/>
                                         <field name="facturable"/>
                                         <field name="a_facturer" attrs="{'invisible': [('facturable','!=', 'oui')]}"/>
@@ -258,7 +263,7 @@
                                         <field name="facture_le" attrs="{'invisible': [('facturable','!=', 'oui')]}" readonly="1"/>
                                     </group>
                                 </group>
-                                <group>
+                                <group  attrs="{'invisible': [('commentaire','==', True)]}">
                                     <group string="a">
                                         <field name="stxt1"/>
                                         <field name="montant1"/>
@@ -280,7 +285,7 @@
                                         <field name="codass4_id"/>
                                     </group>
                                 </group>
-                                <group>
+                                <group attrs="{'invisible': [('commentaire','==', True)]}">
                                     <field name="montant_ht"/>
                                 </group>
 

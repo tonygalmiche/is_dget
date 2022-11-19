@@ -359,6 +359,7 @@ class IsDossierContratDetail(models.Model):
 
     contrat_id  = fields.Many2one('is.dossier.contrat', 'Contrat', required=True, ondelete='cascade')
     numligne    = fields.Integer(u"Ligne")
+    commentaire = fields.Boolean(u"Commentaire", default=False)
     phase_id    = fields.Many2one('is.dossier.contrat.phase', 'Phase')
     texte       = fields.Char(u"Description")
     dateremise  = fields.Date(u"Date")
