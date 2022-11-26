@@ -52,14 +52,15 @@
             action="is_dossier_action"
         />
 
-
-        <!-- Contrats -->
-        <!-- <menuitem   
-            name="Contrats"  
-            id="is_contrat_main_menu"
+        <!-- Adjudicataires -->
+        <menuitem   
+            name="Adjudicataires"  
+            id="is_dossier_adjudicataire_menu"
             parent="is_dget_main_menu"
-            sequence="25"
-        /> -->
+            sequence="23"
+            action="is_dossier_adjudicataire_action"
+        />
+
 
         <record id="is_contrat_main_menu" model="ir.ui.menu" >
             <field name="name">Contrats</field>
