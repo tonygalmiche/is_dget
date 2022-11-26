@@ -3,7 +3,7 @@ access_is_classement,access_is_classement,model_is_classement,base.group_user,1,
 access_is_classement_manager,access_is_classement_manager,model_is_classement,base.group_system,1,1,1,1
 
 access_is_specialite,access_is_specialite,model_is_specialite,base.group_user,1,0,0,0
-access_is_specialite_manager,access_is_specialite_manager,model_is_specialite,base.group_user,base.group_system,1,1,1,1
+access_is_specialite_manager,access_is_specialite_manager,model_is_specialite,sales_team.group_sale_manager,1,1,1,1
 
 access_is_dossier,access_is_dossier,model_is_dossier,base.group_user,1,0,0,0
 access_is_dossier_manager,access_is_dossier_manager,model_is_dossier,sales_team.group_sale_manager,1,1,1,1
@@ -48,5 +48,8 @@ access_is_concours_qui,access_is_concours_qui,model_is_concours_qui,base.group_u
 access_is_account_invoice_line,access_is_account_invoice_line,model_is_account_invoice_line,base.group_user,1,0,0,0
 
 access_is_dossier_adjudicataire,access_is_dossier_adjudicataire,model_is_dossier_adjudicataire,base.group_user,1,0,0,0
-access_is_dossier_adjudicataire_manager,access_is_dossier_adjudicataire_manager,model_is_dossier_adjudicataire,sales_team.group_sale_manager,1,1,1,1
+access_is_dossier_adjudicataire_manager,access_is_dossier_adjudicataire_manager,model_is_dossier_adjudicataire,is_dget.is_gestionnaire_adjudicataire_group,1,1,1,1
+
+
+access_account_invoice_dget,access_account_invoice_dget,model_account_invoice,base.group_user,1,0,0,0
 

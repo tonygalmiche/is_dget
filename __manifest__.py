@@ -21,6 +21,7 @@ InfoSaône - Module Odoo 12 pour DGET
         'product',
     ],
     'data' : [
+        'security/res.groups.xml',
         'security/ir.model.access.csv',
         'security/ir.model.access.xml',
         'views/res_partner_views.xml',
