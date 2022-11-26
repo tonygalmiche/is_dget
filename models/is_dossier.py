@@ -57,6 +57,7 @@ class IsDossier(models.Model):
     note_ids             = fields.One2many('is.dossier.note', 'dossier_id', u'Notes')
     referencee_ids       = fields.Many2many('is.dossier.reference', 'is_dossier_is_reference_rel', 'dossier_id', 'reference_id', u'Références')
     contrat_ids          = fields.One2many('is.dossier.contrat', 'dossier_id', u'Contrats')
+    adjudicataire_ids    = fields.One2many('is.dossier.adjudicataire', 'dossier_id', u'Adjudicataires')
     state                = fields.Selection([
             ('en cours' ,'En cours'),
             ('termine'  ,'Terminé'),
@@ -94,6 +95,19 @@ class IsDossier(models.Model):
                 'context': {'default_dossier_id': obj.id }
             }
             return res
+
+
+class IsDossierAdjudicataire(models.Model):
+    _name = 'is.dossier.adjudicataire'
+    _description = "Dossier Adjudicataire"
+    _order = 'id desc'
+
+    dossier_id       = fields.Many2one('is.dossier', 'Dossier', required=True)
+    retenu           = fields.Selection([('oui','Oui'),('non','Non')],"Retenu")
+    adjudicataire_id = fields.Many2one('res.partner', u"Adjudicataire", index=True)
+    montant          = fields.Float(u"Montant du lot"   , digits=(14,2))
+    nomdulot         = fields.Char(u"Nom du lot")
+    notes            = fields.Text(u"Notes")
 
 
 class IsDossierNote(models.Model):

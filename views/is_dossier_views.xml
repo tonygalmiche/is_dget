@@ -60,6 +60,19 @@
                             </tree>
                         </field>
                     </group>
+
+                    <group string="Adjudicataires">
+                        <field name="adjudicataire_ids" nolabel="1">
+                            <tree editable="bottom">
+                                <field name="adjudicataire_id" required="1"/>
+                                <field name="nomdulot"/>
+                                <field name="montant" sum="total"/>
+                                <field name="retenu"/>
+                                <field name="notes"/>
+                            </tree>
+                        </field>
+                    </group>
+
                     <group string="Notes">
                         <field name="note_ids" nolabel="1">
                             <tree editable="bottom">

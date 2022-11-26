@@ -46,3 +46,7 @@ access_is_concours_manager,access_is_concours_manager,model_is_concours,sales_te
 access_is_concours_qui,access_is_concours_qui,model_is_concours_qui,base.group_user,1,1,1,1
 
 access_is_account_invoice_line,access_is_account_invoice_line,model_is_account_invoice_line,base.group_user,1,0,0,0
+
+access_is_dossier_adjudicataire,access_is_dossier_adjudicataire,model_is_dossier_adjudicataire,base.group_user,1,0,0,0
+access_is_dossier_adjudicataire_manager,access_is_dossier_adjudicataire_manager,model_is_dossier_adjudicataire,sales_team.group_sale_manager,1,1,1,1
+
