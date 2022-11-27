@@ -153,12 +153,14 @@ class IsDossierContrat(models.Model):
             restant_ht    = 0
             facturable_ht = 0
             for line in obj.detail_ids:
-                restant_ht    += line.montant_ht-line.montant_ht*line.facture/100.0
-                if line.a_facturer>line.facture:
-                    facturable_ht += line.montant_ht*(line.a_facturer-line.facture)/100.0
+                if line.facturable=="oui":
+                    restant_ht+=line.montant_ht-line.montant_ht*line.facture/100.0
+                    if line.a_facturer>line.facture:
+                        facturable_ht += line.montant_ht*(line.a_facturer-line.facture)/100.0
             obj.restant_ht    = restant_ht
             obj.facturable_ht = facturable_ht
         return True
+
 
     @api.multi
     def _get_numcontrat(self):
