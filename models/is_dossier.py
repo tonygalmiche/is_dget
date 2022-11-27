@@ -152,11 +152,12 @@ class IsDossierContrat(models.Model):
         for obj in self:
             restant_ht    = 0
             facturable_ht = 0
-            for line in obj.detail_ids:
-                if line.facturable=="oui":
-                    restant_ht+=line.montant_ht-line.montant_ht*line.facture/100.0
-                    if line.a_facturer>line.facture:
-                        facturable_ht += line.montant_ht*(line.a_facturer-line.facture)/100.0
+            if obj.signe=="oui":
+                for line in obj.detail_ids:
+                    if line.facturable=="oui":
+                        restant_ht+=line.montant_ht-line.montant_ht*line.facture/100.0
+                        if line.a_facturer>line.facture:
+                            facturable_ht += line.montant_ht*(line.a_facturer-line.facture)/100.0
             obj.restant_ht    = restant_ht
             obj.facturable_ht = facturable_ht
         return True
