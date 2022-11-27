@@ -74,6 +74,7 @@ class AccountInvoice(models.Model):
             obj.compute_taxes()
         return True
 
+
 class AccountInvoiceLine(models.Model):
     _inherit = "account.invoice.line"
     #_order = 'is_contrat_detail_id'

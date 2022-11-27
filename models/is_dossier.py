@@ -314,6 +314,7 @@ class IsDossierContrat(models.Model):
                         'price_unit': line.montant_ht,
                     }
                     invoice_line.write(vals)
+                    print(line.texte,invoice_line,invoice_line.account_id)
             #*******************************************************************
 
             #** Ajout des factures réalisées ***********************************
@@ -349,9 +350,9 @@ class IsDossierContrat(models.Model):
             res_validate = invoice.update_tva_account_action()
             res_validate = invoice.compute_taxes()
             try:
-                res_validate = invoice.action_invoice_open()
+               res_validate = invoice.action_invoice_open()
             except:
-                continue
+               continue
             #*******************************************************************
 
             obj.compute_restant_ht()
