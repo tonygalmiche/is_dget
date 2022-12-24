@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
 from odoo.exceptions import Warning
+from datetime import date, datetime
 
 
 class IsTVA(models.Model):
@@ -46,6 +47,19 @@ class AccountInvoice(models.Model):
     is_montant_hors_revision = fields.Float(u"Montant hors révision", digits=(14,4), compute='_compute_montant_revision', readonly=True, store=True)
     is_dossier_id            = fields.Many2one('is.dossier', u"Dossier"       , compute='_compute_dossier_id'      , readonly=True, store=True, index=True)
     is_tva_id                = fields.Many2one('is.tva', u'TVA')
+    is_date_update_facture   = fields.Datetime("Date mise à jour déjà facturé")
+
+
+    @api.multi
+    def name_get(self):
+        result = []
+        for obj in self:
+            #result.append((obj.id, str(obj.numaff)+u' - '+str(obj.nom)))
+            result.append((obj.id, str(obj.name)))
+        return result
+
+
+
 
     @api.multi
     def acceder_facture_action(self, vals):
@@ -66,7 +80,9 @@ class AccountInvoice(models.Model):
 
     @api.multi
     def update_tva_account_action(self):
+        self.update_deja_facture()
         for obj in self:
+            print("####",obj)
             for line in obj.invoice_line_ids:
                 if line.product_id:
                     line.account_id = obj.is_tva_id.account_id.id
@@ -74,15 +90,246 @@ class AccountInvoice(models.Model):
             obj.compute_taxes()
         return True
 
+    def update_deja_facture_recursif(self, deja_factures, visites, now):
+        # Parcours d'arbre "bottom-up" (on parcourt le fond avant de changer la racine)
+        # avec pour objectif de calculer "réellement facturé" et "deja_facture" pour chaque noeud
+        # 34FC130
+        #  - 23FC120
+        #  - 24FC039
+        #  - - 23FC120 OK
+        #  - 24FC066
+        #  - - 23FC120 OK
+        #  - - 24FC039 OK
+        for obj in self:
+            
+            # ----------------- Initialization -----------------
+            factures = []  # liste des factures dans la facture courante
+            services = []  # liste des services dans la facture courante
+            # on parcourt chaque ligne
+            for line in obj.invoice_line_ids:
+                # retrouver tous les services
+                if line.is_contrat_detail_id:
+                    services.append(line)
+                # retrouver toutes les factures
+                if line.is_invoice_id and line.is_invoice_id.state not in ['draft','cancel']:
+                    factures.append(line)
+                if line.is_invoice_id and line.is_invoice_id.state in ['draft','cancel']:
+                    print("line is ", line.is_invoice_id.state)
+
+
+            # ----------------- Cas de base ---------------------
+            # Case de base 1: on a déjà été visité
+            if obj in visites:
+                #print('cas de base 1: déjà visité')
+                # ne rien faire
+                return deja_factures, visites
+
+            # case de base 2: on a pas de factures liées
+            if obj not in visites and factures == []:
+                #print('cas de base 2: pas de facture enfant')
+                for line in services:
+                    # mettre à jour odoo, la colonne rellement factures
+                    line.is_reellement_facture = line.quantity
+                    line.is_montant_reellement_facture = line.is_reellement_facture * line.price_unit
+                    # mettre à jour odoo, la colonne déjà factures
+                    line.is_deja_facture = 0.
+                    # mettre à jour la liste des choses déjà facturées avec celles facturées dans la facture courante
+                    # Le if est pour le cas perturbant ou quantité = 0 et qui ne fait rien au final
+                    if line.is_reellement_facture != 0:
+                        deja_factures[line.is_contrat_detail_id] = line.is_reellement_facture
+                # mettre à jour le "now"
+                obj.is_date_update_facture = now
+                # rajouter la facture courante come visitee
+                visites.append(obj)
+                return deja_factures, visites
+
+            # ------------- Cas général: traitement des fils ------------------
+            # Cas général: 
+            if obj not in visites and factures:
+                #print("cas général avec %d fils et %d services " %(len(factures), len(services)))
+                # Récupérer les déjà factures et visites des fils un à un 
+                for line in factures:
+                    deja_factures, visites = line.is_invoice_id.update_deja_facture_recursif(deja_factures, visites, now)
+                    line.is_deja_facture = line.quantity
+                # Mettre à jour la facture courante
+                for line in services:
+                    # Mettre à jour odoo en utilisant les resultat des factures enfants. 
+                    if line.is_contrat_detail_id in deja_factures:
+                        line.is_deja_facture = deja_factures[line.is_contrat_detail_id]
+                    # Sinon mettre à 0
+                    else:
+                        line.is_deja_facture = 0
+
+                    # mettre à jour odoo, la colonne rellement factures
+                    line.is_reellement_facture = line.quantity - line.is_deja_facture
+                    line.is_montant_reellement_facture = line.is_reellement_facture * line.price_unit
+                    # mettre à jour la liste des choses des "futurs" déjà facturées 
+                    # comme la somme des déjà facturées + du reellement facturé de cette facture
+                    deja_factures[line.is_contrat_detail_id] = line.is_reellement_facture + line.is_deja_facture
+
+                # mettre à jour le "now"
+                obj.is_date_update_facture = now
+                # Marquer cette facture comme étant visitée
+                visites.append(obj)
+            return deja_factures, visites
+
+
+
+
+    # def update_deja_facture_recursif(self, now,niveau, sens, res):
+    #     for obj in self:
+    #         if now!=obj.is_date_update_facture:
+    #             print(niveau*" -", obj.name)
+    #             for line in obj.invoice_line_ids:
+    #                 line_sens=sens
+    #                 if line.price_unit<0:
+    #                     line_sens=-line_sens
+    #                 if obj.type=="out_refund":
+    #                     line_sens=-line_sens
+    #                 if line.is_invoice_id and line.is_invoice_id.state not in ['draft','cancel']:
+    #                     res=line.is_invoice_id.update_deja_facture_recursif(now,niveau+1,line_sens,res)
+    #             #     if line.is_contrat_detail_id:
+    #             #         phase_id = line.is_contrat_detail_id.phase_id
+    #             #         if phase_id not in res:
+    #             #             res[phase_id]=0
+    #             #         res[phase_id]+=line_sens*(line.quantity - line.is_deja_facture)
+
+
+
+    #         else:
+    #             print(niveau*" -", obj.name, "OK")
+    #             # #** Retourner ce qui est reelement facturé sans MAJ ***********
+    #             # for line in obj.invoice_line_ids:
+    #             #     line_sens=sens
+    #             #     if line.price_unit<0:
+    #             #         line_sens=-line_sens
+    #             #     if obj.type=="out_refund":
+    #             #         line_sens=-line_sens
+    #             #     if line.is_contrat_detail_id:
+    #             #         phase_id = line.is_contrat_detail_id.phase_id
+    #             #         if phase_id not in res:
+    #             #             res[phase_id]=0
+    #             #         res[phase_id]+=line_sens*(line.quantity - line.is_deja_facture)
+    #             # return res
+    #             # #************************************
+
+
+                
+
+
+                # on traite la queue ensuite en taillant les branches déjà visitées
+            
+
+            # if now!=obj.is_date_update_facture:
+            #     print(niveau*" -", obj.name)
+
+            # for line in obj.invoice_line_ids:
+
+            #     line_sens=sens
+            #     if line.price_unit<0:
+            #         line_sens=-line_sens
+            #     if obj.type=="out_refund":
+            #         line_sens=-line_sens
+
+
+            #     #if now!=obj.is_date_update_facture:
+            #     if line.is_invoice_id and line.is_invoice_id.state not in ['draft','cancel']:
+            #         res=line.is_invoice_id.update_deja_facture_recursif(now,niveau+1,line_sens,res)
+
+
+            #     if line.is_contrat_detail_id:
+            #         phase_id = line.is_contrat_detail_id.phase_id
+            #         #print(obj.name,res)
+            #         if phase_id not in res:
+            #             res[phase_id]=0
+            #         #quantity  = line.quantity
+            #         res[phase_id]+=line_sens*(line.quantity) #-line.is_deja_facture)
+            # else:
+            #     for line in obj.invoice_line_ids:
+            #        if line.is_contrat_detail_id:
+            #             phase_id = line.is_contrat_detail_id.phase_id
+            #             #print(obj.name,res)
+            #             if phase_id not in res:
+            #                 res[phase_id]=0
+            #             #quantity  = line.quantity
+            #             res[phase_id]+=(line.quantity -line.is_deja_facture) #-line.is_deja_facture)
+
+
+
+            #obj.is_date_update_facture = now
+            # #print(obj.name,res)
+            # for res_line in res:
+            #     for invoice_line in obj.invoice_line_ids:
+            #         if res_line==invoice_line.is_contrat_detail_id.phase_id:
+            #             deja_facture =  invoice_line.quantity - res[res_line]
+            #             print(niveau*" -", obj.name,"- \t facturé =",res_line.txt_phase,res[res_line], "\t qt =",invoice_line.quantity,"\t deja_facture =",deja_facture)
+            #             invoice_line.is_deja_facture =deja_facture
+
+
+
+            #return res
+
+
+    #                 invoices.append(line.is_invoice_id.name)
+    #             txt_phase = line.is_contrat_detail_id.phase_id.txt_phase
+    #             quantity  = line.quantity
+
+    #             line_sens=sens
+    #             if line.price_unit<0:
+    #                 line_sens=-line_sens
+    #             if invoice.type=="out_refund":
+    #                 line_sens=-line_sens
+    #             vals={
+    #                 "niveau"      : niveau,
+    #                 "invoice_name": invoice.name,
+    #                 "invoice_type": invoice.type,
+    #                 "is_contrat_detail_id": line.is_contrat_detail_id,
+    #                 "txt_phase"   : txt_phase,
+    #                 "price_unit"  : line.price_unit,
+    #                 "sens"        : line_sens,
+    #                 "quantity"    : quantity,
+    #             }
+    #             lines.append(vals)
+    #             if line.is_invoice_id and line.is_invoice_id.state not in ['draft','cancel']:
+    #                 res = obj.get_invoice_line_recursif(compteur+1, niveau+1, lines, line_sens, line.is_invoice_id, invoices)
+    #                 lines    = res.get("lines"   , [])
+    #                 compteur = res.get("compteur", 0)
+    #                 invoices = res.get("invoices", [])
+    #         res={
+    #             "lines"   : lines,
+    #             "compteur": compteur,
+    #             "invoices": invoices,
+    #         }
+    #         return res
+
+    def update_deja_facture(self):
+        now=datetime.now()
+        # récupérer le nombre de factures sélectionnées
+        n_factures = len(self)
+        # Se souvenir de toutes les factures visitées
+        deja_factures = {}
+        visites = []
+        # parcourir les factures
+        for i,obj in enumerate(self):
+            t_start = datetime.now()
+            deja_factures, visites = obj.update_deja_facture_recursif(deja_factures, visites, now)
+            t_end = datetime.now()
+            t = (t_end - t_start).total_seconds()
+            print(" --- factures %d / %d --- %s --- %.6f sec --- " %(i+1, n_factures, obj.name, t))
+        t_end_tot = datetime.now()
+        print("Mise à jour de toutes les factures en %.6f secondes" %((t_end_tot - now).total_seconds()))
+
 
 class AccountInvoiceLine(models.Model):
     _inherit = "account.invoice.line"
     #_order = 'is_contrat_detail_id'
     _order = 'sequence,id'
 
-    is_contrat_detail_id = fields.Many2one('is.dossier.contrat.detail', u'Ligne Contrat', index=True)
-    is_invoice_id        = fields.Many2one('account.invoice', u'Facture liée')
-    is_deja_facture      = fields.Float(u"Déjà facturé", digits=(14,4))
+    is_contrat_detail_id          = fields.Many2one('is.dossier.contrat.detail', 'Ligne Contrat', index=True)
+    is_invoice_id                 = fields.Many2one('account.invoice', 'Facture liée')
+    is_deja_facture               = fields.Float("Déjà facturé", digits=(14,6))
+    is_reellement_facture         = fields.Float("Réellement facturé", digits=(14,6))
+    is_montant_reellement_facture = fields.Float("Montant réellement facturé", digits=(14,2))
 
     @api.multi
     def uptate_onchange_product_id(self):

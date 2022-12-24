@@ -296,8 +296,8 @@
                             <field name="dossier_id"/>
                             <field name="description" default_focus="1"/>
                             <field name="signe"/>
-                            <field name="client_id"/>
-                            <field name="tva_id" required="0"/>
+                            <field name="client_id" required="1"/>
+                            <field name="tva_id"    required="1"/>
                             <field name="notes"/>
                         </group>
                         <group>
@@ -323,6 +323,7 @@
                                 <field name="facturable"/>
                                 <field name="a_facturer"/>
                                 <field name="facture"/>
+                                <field name="facture_recursif"/>
                                 <field name="montant_facture"    sum="Total"/>
                                 <field name="montant_a_facturer" sum="Total"/>
                                 <!--<field name="facture_le" readonly="1"/>-->
@@ -401,6 +402,9 @@
                             </tree>
                         </field>
                     </group>
+                    <group>
+                        <field name="nb_factures"/>
+                    </group>
                     <group string="Heures">
                         <field name="heure_ids" nolabel="1">
                             <tree>
@@ -431,6 +435,7 @@
                 <field name="traitance_id"/>
                 <field name="restant_ht"    sum="Total"/>
                 <field name="facturable_ht" sum="Total"/>
+                <field name="nb_factures"/>
             </tree>
         </field>
     </record>
@@ -745,6 +750,35 @@
         <field name="view_mode">tree,form</field>
         <field name="view_id" ref="is_dget.is_dossier_contrat_detail_maf_tree"/>
     </record>
+
+
+
+    <record id="is_dossier_contrat_detail_facturable_tree" model="ir.ui.view">
+        <field name="name">is_dossier_contrat_detail_facturable_tree</field>
+        <field name="model">is.dossier.contrat.detail</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="contrat_id"/>
+                <field name="numligne"/>
+                <field name="phase_id"/>
+                <field name="a_facturer"         sum="Total"/>
+                <field name="facture"            sum="Total"/>
+                <field name="facture_recursif"   sum="Total"/>
+                <field name="montant_facture"    sum="Total"/>
+                <field name="montant_a_facturer" sum="Total"/>
+            </tree>
+        </field>
+    </record>
+    <record  id="is_dossier_contrat_detail_facturable_action" model="ir.actions.act_window">
+        <field name="name">Détail contrat Facturable</field>
+        <field name="res_model">is.dossier.contrat.detail</field>
+        <field name="view_type">form</field>
+        <field name="limit">200</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="is_dget.is_dossier_contrat_detail_facturable_tree"/>
+    </record>
+
+
 
 
 

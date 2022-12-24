@@ -113,6 +113,13 @@
             sequence="40"
             action="is_dossier_contrat_detail_maf_action"
         />
+        <menuitem
+            id="is_dossier_contrat_detail_facturable_menu"
+            name="Détail Contrat Facturable"
+            parent="is_contrat_main_menu"
+            sequence="50"
+            action="is_dossier_contrat_detail_facturable_action"
+        />
 
 
 
@@ -143,12 +150,21 @@
             <field name="action"    ref="is_account_invoice_action"/>
             <field name="parent_id" eval="ref('is_account_invoice_main_menu')"/>
         </record>
+        <record id="is_invoice_out_refund_menu" model="ir.ui.menu" >
+            <field name="name">Avoirs</field>
+            <field name="sequence">20</field>
+            <field name="action"    ref="account.action_invoice_out_refund"/>
+            <field name="parent_id" eval="ref('is_account_invoice_main_menu')"/>
+        </record>
         <record id="is_account_invoice_line_menu" model="ir.ui.menu" >
             <field name="name">Lignes des factures</field>
-            <field name="sequence">20</field>
+            <field name="sequence">30</field>
             <field name="action"    ref="is_account_invoice_line_action"/>
             <field name="parent_id" eval="ref('is_account_invoice_main_menu')"/>
         </record>
+
+
+
 
 
 
