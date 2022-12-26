@@ -151,7 +151,7 @@ class IsDossierContrat(models.Model):
     @api.depends('detail_ids')
     def compute_restant_ht(self):
         for obj in self:
-            obj.compute_facture_recursif()
+            # obj.compute_facture_recursif()
             restant_ht    = 0
             facturable_ht = 0
             if obj.signe=="oui":
@@ -162,9 +162,6 @@ class IsDossierContrat(models.Model):
                         facturable_ht += line.montant_ht*(line.a_facturer-line.facture)/100.0
             obj.restant_ht    = restant_ht
             obj.facturable_ht = facturable_ht
-
-
-
         return True
 
 
@@ -205,71 +202,72 @@ class IsDossierContrat(models.Model):
     facturable_ht = fields.Float(u"Facturable HT", digits=(14,2), compute='compute_restant_ht', readonly=True, store=True)
     heure_ids     = fields.One2many('is.salarie.heure', 'contrat_id', u'Heures', readonly=True)
     tva_id        = fields.Many2one('is.tva', u'TVA')
+    anomalie      = fields.Float(u"Anomalie")
 
 
 
-    def get_invoice_line_recursif(self, compteur, niveau, lines, sens, invoice, invoices):
-        for obj in self:
-            for line in invoice.invoice_line_ids:
-                if line.is_invoice_id:
-                    invoices.append(line.is_invoice_id.name)
-                txt_phase = line.is_contrat_detail_id.phase_id.txt_phase
-                quantity  = line.quantity
+    # def get_invoice_line_recursif(self, compteur, niveau, lines, sens, invoice, invoices):
+    #     for obj in self:
+    #         for line in invoice.invoice_line_ids:
+    #             if line.is_invoice_id:
+    #                 invoices.append(line.is_invoice_id.name)
+    #             txt_phase = line.is_contrat_detail_id.phase_id.txt_phase
+    #             quantity  = line.quantity
 
-                line_sens=sens
-                if line.price_unit<0:
-                    line_sens=-line_sens
-                if invoice.type=="out_refund":
-                    line_sens=-line_sens
-                vals={
-                    "niveau"      : niveau,
-                    "invoice_name": invoice.name,
-                    "invoice_type": invoice.type,
-                    "is_contrat_detail_id": line.is_contrat_detail_id,
-                    "txt_phase"   : txt_phase,
-                    "price_unit"  : line.price_unit,
-                    "sens"        : line_sens,
-                    "quantity"    : quantity,
-                }
-                lines.append(vals)
-                if line.is_invoice_id and line.is_invoice_id.state not in ['draft','cancel']:
-                    res = obj.get_invoice_line_recursif(compteur+1, niveau+1, lines, line_sens, line.is_invoice_id, invoices)
-                    lines    = res.get("lines"   , [])
-                    compteur = res.get("compteur", 0)
-                    invoices = res.get("invoices", [])
-            res={
-                "lines"   : lines,
-                "compteur": compteur,
-                "invoices": invoices,
-            }
-            return res
-
-
-    def compute_facture_recursif(self):
-        for obj in self:
-            lines=[]
-            compteur=1
-            for invoice in obj.invoice_ids:
-                invoices=[]
-                res = obj.get_invoice_line_recursif(compteur, 1, lines, 1, invoice, invoices)
-                lines    = res.get("lines"   , [])
-                compteur = res.get("compteur", 0)
-                invoices = res.get("invoices", [])
-            res={}
-            for line in lines:
-                is_contrat_detail_id = line["is_contrat_detail_id"]
-                if is_contrat_detail_id:
-                    if is_contrat_detail_id not in res:
-                        res[is_contrat_detail_id]=0
-                    res[is_contrat_detail_id]+=line["sens"]*line["quantity"]
+    #             line_sens=sens
+    #             if line.price_unit<0:
+    #                 line_sens=-line_sens
+    #             if invoice.type=="out_refund":
+    #                 line_sens=-line_sens
+    #             vals={
+    #                 "niveau"      : niveau,
+    #                 "invoice_name": invoice.name,
+    #                 "invoice_type": invoice.type,
+    #                 "is_contrat_detail_id": line.is_contrat_detail_id,
+    #                 "txt_phase"   : txt_phase,
+    #                 "price_unit"  : line.price_unit,
+    #                 "sens"        : line_sens,
+    #                 "quantity"    : quantity,
+    #             }
+    #             lines.append(vals)
+    #             if line.is_invoice_id and line.is_invoice_id.state not in ['draft','cancel']:
+    #                 res = obj.get_invoice_line_recursif(compteur+1, niveau+1, lines, line_sens, line.is_invoice_id, invoices)
+    #                 lines    = res.get("lines"   , [])
+    #                 compteur = res.get("compteur", 0)
+    #                 invoices = res.get("invoices", [])
+    #         res={
+    #             "lines"   : lines,
+    #             "compteur": compteur,
+    #             "invoices": invoices,
+    #         }
+    #         return res
 
 
-            #print(res)
-            for line in obj.detail_ids:
-                #print(line)
-                if line in res:
-                    facture_recursif = res[line]
-                    line.facture_recursif = facture_recursif*100
+    # def compute_facture_recursif(self):
+    #     for obj in self:
+    #         lines=[]
+    #         compteur=1
+    #         for invoice in obj.invoice_ids:
+    #             invoices=[]
+    #             res = obj.get_invoice_line_recursif(compteur, 1, lines, 1, invoice, invoices)
+    #             lines    = res.get("lines"   , [])
+    #             compteur = res.get("compteur", 0)
+    #             invoices = res.get("invoices", [])
+    #         res={}
+    #         for line in lines:
+    #             is_contrat_detail_id = line["is_contrat_detail_id"]
+    #             if is_contrat_detail_id:
+    #                 if is_contrat_detail_id not in res:
+    #                     res[is_contrat_detail_id]=0
+    #                 res[is_contrat_detail_id]+=line["sens"]*line["quantity"]
+
+
+    #         #print(res)
+    #         for line in obj.detail_ids:
+    #             #print(line)
+    #             if line in res:
+    #                 facture_recursif = res[line]
+    #                 line.facture_recursif = facture_recursif*100
 
 
 
@@ -292,13 +290,8 @@ class IsDossierContrat(models.Model):
 
     @api.multi
     def update_restant_ht_action(self):
-        # nombre de contrats
-        nb=len(self)
-        ct=1
-        for obj in self:
-
-            # mettre à jour le nombre de factures dans ce contrat
-            obj.nb_factures = len(obj.invoice_ids)
+        print("WARNING: Cette fonction ne fait plus rien")
+        # for obj in self:
 
             # if len(obj.invoice_ids)>13:
             #     print(ct,"\t",obj.name,"\t",len(obj.invoice_ids))
@@ -312,6 +305,54 @@ class IsDossierContrat(models.Model):
             #     print("F","\t", ct,"\t",nb,"\t",obj.name,"\t",len(obj.invoice_ids),"\t",tps)
             # ct+=1
 
+    @api.multi
+    def update_reellement_facture_action(self):
+        """
+        Pour chaque contrat:
+        1. Update le nombre de factures dans le contrat
+        2. Update le reellement facturé de toutes les factures du contrat (OPTIONNEL)
+        3. Update le pourcentage de réellement facturé pour chaque service dans ce contrat
+        """
+        t_start = datetime.now()
+        for obj in self:
+            anomalie = 0
+
+            # 1. mettre à jour le nombre de factures dans ce contrat
+            obj.nb_factures = len(obj.invoice_ids)
+
+            # 2. met à jour le reellement facturé de toutes les factures
+            #obj.invoice_ids.update_deja_facture_action()
+
+            # 3. Pour chaque service, récupérer le pourcentage de déjà facturé dans ce contrat
+            # Pour cela: 
+            #  3.1. récupérer tous les services et les factures
+            #  3.2. mettre à jour le pourcentage de déjà facturé en parcourant chaque service de chaque facture
+            factures_recursif = {} 
+
+            # --- 3.1. récupérer tous les services et les factures --- 
+            services = obj.detail_ids
+            # Initialisation du dict de % de déjà facturé
+            factures_recursif = { line : 0 for line in services } 
+            
+             # --- 3.2. maj du % de déjà facturé en parcourant chaque service de chaque facture --- 
+            for f in obj.invoice_ids:
+                # Mettre à jour le reellement facturé pour les services de cette facture
+                for line in f.invoice_line_ids:
+                    if line.is_contrat_detail_id:
+                        # Somme des réellement facturé de chaque facture * le prix
+                        signe = 1
+                        if line.price_unit < 0:
+                            signe = -1    
+                        factures_recursif[line.is_contrat_detail_id] += signe*line.is_reellement_facture
+
+            # Le transformer en pourcentage
+            for s in services:
+                s.facture_recursif = factures_recursif[s]*100
+                anomalie += abs(s.facture_recursif - s.facture)*s.montant_ht/100
+                    
+            obj.anomalie = anomalie
+        t_end = datetime.now()
+        print("Mise à jour de tous les contrats en %.6f secondes" %((t_end - t_start).total_seconds()))
 
     @api.multi
     def acceder_contrat_action(self, vals):
@@ -329,10 +370,9 @@ class IsDossierContrat(models.Model):
 
     @api.multi
     def generer_facture_action(self, vals):
+        print("WARNING: cette fonction met seulement à jour le nombre de factures!")
         # le contrat (ou un des contrats si plusieurs contrats)
         for obj in self:
-            # mettre à jour toutes les factures du contrat
-            obj.invoice_ids.update_deja_facture()
             # mettre à jour le nombre de factures dans ce contrat
             obj.nb_factures = len(obj.invoice_ids)
 
@@ -537,6 +577,7 @@ class IsDossierContratDetail(models.Model):
     montant_facture    = fields.Float(u"Montant facturé"   , compute='_compute_facture', readonly=True, store=False)
 
     facture_recursif   = fields.Float("% facturé récursif")
+    # facture_natacha   = fields.Float("% facturé natacha")
 
 
 class IsDossierContratPhase(models.Model):

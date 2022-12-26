@@ -16,7 +16,17 @@
             </field>
         </record>
 
-
+        <!-- Actualiser réellement facturé sur les factures -->
+        <record id="update_reellement_facture_action_server" model="ir.actions.server">
+            <field name="name">Actualiser réellement facturé</field>
+            <field name="type">ir.actions.server</field>
+            <field name="state">code</field>
+            <field name="model_id" ref="is_dget.model_account_invoice"/>
+            <field name="binding_model_id" ref="is_dget.model_account_invoice"/>
+            <field name="code">
+                records.update_deja_facture_action()
+            </field>
+        </record>
 
         <!-- account.invoice -->
         <record id="is_invoice_form" model="ir.ui.view">
