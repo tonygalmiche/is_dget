@@ -105,26 +105,20 @@ class AccountInvoice(models.Model):
         --- Remarques ---
         Si c'est un avoir:
         -- 1. Diminuer la quantité déjà facturé "du futur" (parce qu'on enlève quelque chose qui était facturé)
-        -- 2. Réellement facturé est positif (qui en fait rend des sous)
-        -- 3. "déjà facturé" influence le réellement facturé (= déjà facturé - quantité)
+        -- 2. Réellement facturé est négatif (on rend des sous)
         Si c'est une facture classique:
         -- 1. Augmenter la quantité déjà facturé "du futur"
         -- 2. Réellement facturé est positif
-        -- 3. "déjà facturé" influence le réellement facturé (= quantité - déjà facturé)
         Conclusion: 
-        -- Réellement facturé est toujours positif
-        -- reellement_facture = signe(quantité - déjà facturé)
-        -- deja_facture du futur += signe*line.is_reellement_facture + line.is_deja_facture
+        -- Le signe de réellement facturé dépend de si on doit donner des sous ou en reprendre
+        -- reellement_facture = quantité - déjà facturé
+        -- deja_facture du futur = line.is_reellement_facture + line.is_deja_facture
         """
         for obj in self:
             
             # ----------------- Initialization -----------------
             factures = []  # liste des factures dans la facture courante
             services = []  # liste des services dans la facture courante
-            # Signe pour la mise à jour du "deja facture" du futur
-            signe_facture = 1
-            if obj.type == "out_refund":
-                signe_facture = -1
 
             # on parcourt chaque ligne
             for line in obj.invoice_line_ids:
@@ -141,8 +135,6 @@ class AccountInvoice(models.Model):
             # ----------------- Cas de base ---------------------
             # Case de base 1: on a déjà été visité
             if obj in visites:
-                #print('cas de base 1: déjà visité')
-                # ne rien faire
                 return deja_factures, visites
 
             # case de base 2: on a pas de factures liées
@@ -151,14 +143,6 @@ class AccountInvoice(models.Model):
                 for line in services:
 
                     # mettre à jour odoo, la colonne reellement factures
-                    # line.is_reellement_facture = line.quantity
-                    # if obj.type == "out_refund":
-                    #     line.is_reellement_facture = -(line.quantity)
-                    # else:
-                    #     line.is_reellement_facture = line.quantity
-                    signe_line = 1
-                    if line.price_unit < 0:
-                        signe_line = -1
                     line.is_reellement_facture = line.quantity
                     line.is_montant_reellement_facture = line.is_reellement_facture * abs(line.price_unit)
 
@@ -184,26 +168,13 @@ class AccountInvoice(models.Model):
                     line.reellement_facture = 0.
                 # Mettre à jour la facture courante
                 for line in services:
-                    signe_line = 1
-                    if line.price_unit < 0:
-                        signe_line = -1
                     # Mettre à jour odoo en utilisant les resultat des factures enfants. 
                     if line.is_contrat_detail_id in deja_factures:
                         line.is_deja_facture = deja_factures[line.is_contrat_detail_id]
                     # Sinon mettre à 0
                     else:
                         line.is_deja_facture = 0
-
-                    # mettre à jour odoo, la colonne rellement factures
-                    # if obj.type == "out_refund":
-                    #     line.is_reellement_facture = -(line.quantity)
-                    # else:
-                    #     line.is_reellement_facture = (line.quantity - line.is_deja_facture)
-
-                    if obj.type == "out_refund":
-                        line.is_reellement_facture = line.quantity - line.is_deja_facture
-                    else:
-                        line.is_reellement_facture = line.quantity - line.is_deja_facture
+                    line.is_reellement_facture = line.quantity - line.is_deja_facture
                     line.is_montant_reellement_facture = line.is_reellement_facture * abs(line.price_unit)
                     # mettre à jour la liste des choses des "futurs" déjà facturées 
                     # comme la somme des déjà facturées + du reellement facturé de cette facture
@@ -242,15 +213,7 @@ class AccountInvoice(models.Model):
     #             #     line_sens=sens
     #             #     if line.price_unit<0:
     #             #         line_sens=-line_sens
-    #             #     if obj.type=="out_refund":
-    #             #         line_sens=-line_sens
-    #             #     if line.is_contrat_detail_id:
-    #             #         phase_id = line.is_contrat_detail_id.phase_id
-    #             #         if phase_id not in res:
-    #             #             res[phase_id]=0
-    #             #         res[phase_id]+=line_sens*(line.quantity - line.is_deja_facture)
-    #             # return res
-    #             # #************************************
+    #             #     if obj.type=="out_refund":signe_line******
 
 
                 

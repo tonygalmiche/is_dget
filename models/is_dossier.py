@@ -156,11 +156,7 @@ class IsDossierContrat(models.Model):
             if obj.signe=="oui":
                 for line in obj.detail_ids:
                     if line.facturable=="oui":
-                        sens_ligne = 1
-                        if line.montant_a_facturer<0:
-                            sens_ligne = -1
                         restant_ht += line.montant_ht-line.montant_ht*line.facture_recursif/100.0
-                        #if line.a_facturer>line.facture:
                         facturable_ht += line.montant_ht*(line.a_facturer-line.facture_recursif)/100.0
             obj.restant_ht    = restant_ht
             obj.facturable_ht = facturable_ht
@@ -283,6 +279,7 @@ class IsDossierContrat(models.Model):
     @api.multi
     def update_restant_ht_action(self):
         for obj in self:
+            print("bouton actualisé restant ht")
             obj.compute_restant_ht()
         # print("WARNING: Cette fonction ne fait plus rien")
         # for obj in self:
@@ -449,19 +446,15 @@ class IsDossierContrat(models.Model):
                         'product_id': 1,
                         'name'      : line.texte,
                         'quantity'  : quantity,
-                        # 'price_unit': sens_facture*line.montant_ht,     Ceci donne tout bon mais à l'opposé
-                        #'price_unit': line.montant_ht,  # Ceci donne tout bon! 1/3
                         'price_unit': False,
-                        #'price_unit': line.montant_ht,
                         'account_id': 622, #701100
                     }
                     invoice_line=self.env['account.invoice.line'].create(vals)
                     line_res = invoice_line.uptate_onchange_product_id()
                     vals={
                         'name'      : line.texte,
-                        #'price_unit': sens_ligne*line.montant_ht,
-                        # 'price_unit': line.montant_ht,    Ceci donne tout bon mais à l'opposé
-                        'price_unit': sens_facture*line.montant_ht,  # Ceci donne presque bon! 2/3
+                        #'price_unit': sens_facture*line.montant_ht,
+                        'price_unit': sens_facture*line.montant_ht,
                     }
                     invoice_line.write(vals)
             #*******************************************************************
@@ -493,9 +486,6 @@ class IsDossierContrat(models.Model):
                 vals={
                     'name'      : facture.number,
                     #'price_unit': -facture.amount_untaxed,
-                    # 'price_unit'   : -facture.is_montant_hors_revision,   Ceci donne tout bon mais à l'opposé
-                    #'price_unit'   : -sens_facture*facture.is_montant_hors_revision, # Ceci donne presque bon! 3/3
-
                     # On veut que le montant final d'une invoice soit positif quelque soit le type d'invoice
                     # Donc on veut que les lignes des invoices précédentes soient en moins si sont type est different
                     # du type de l'invoice donc "-(sens_facture*sens_ligne_facture)"
@@ -600,7 +590,6 @@ class IsDossierContratDetail(models.Model):
     montant_facture    = fields.Float(u"Montant facturé"   , compute='_compute_facture', readonly=True, store=False)
 
     facture_recursif   = fields.Float("% facturé récursif")
-    # facture_natacha   = fields.Float("% facturé natacha")
 
 
 class IsDossierContratPhase(models.Model):
