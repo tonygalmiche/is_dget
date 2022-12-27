@@ -122,9 +122,9 @@ class AccountInvoice(models.Model):
             factures = []  # liste des factures dans la facture courante
             services = []  # liste des services dans la facture courante
             # Signe pour la mise à jour du "deja facture" du futur
-            signe = 1
+            signe_facture = 1
             if obj.type == "out_refund":
-                signe = 1
+                signe_facture = -1
 
             # on parcourt chaque ligne
             for line in obj.invoice_line_ids:
@@ -151,14 +151,22 @@ class AccountInvoice(models.Model):
                 for line in services:
 
                     # mettre à jour odoo, la colonne reellement factures
+                    # line.is_reellement_facture = line.quantity
+                    # if obj.type == "out_refund":
+                    #     line.is_reellement_facture = -(line.quantity)
+                    # else:
+                    #     line.is_reellement_facture = line.quantity
+                    signe_line = 1
+                    if line.price_unit < 0:
+                        signe_line = -1
                     line.is_reellement_facture = line.quantity
-                    line.is_montant_reellement_facture = abs(line.is_reellement_facture * line.price_unit)
+                    line.is_montant_reellement_facture = line.is_reellement_facture * abs(line.price_unit)
 
                     # mettre à jour odoo, la colonne déjà factures
                     line.is_deja_facture = 0.
 
                     # mettre à jour la liste des choses déjà facturées avec celles facturées dans la facture courante
-                    deja_factures[line.is_contrat_detail_id] = signe*line.is_reellement_facture
+                    deja_factures[line.is_contrat_detail_id] = line.is_reellement_facture
                 # mettre à jour le "now"
                 obj.is_date_update_facture = now
                 # rajouter la facture courante come visitee
@@ -173,8 +181,12 @@ class AccountInvoice(models.Model):
                 for line in factures:
                     deja_factures, visites = line.is_invoice_id.update_deja_facture_recursif(deja_factures, visites, now)
                     line.is_deja_facture = line.quantity
+                    line.reellement_facture = 0.
                 # Mettre à jour la facture courante
                 for line in services:
+                    signe_line = 1
+                    if line.price_unit < 0:
+                        signe_line = -1
                     # Mettre à jour odoo en utilisant les resultat des factures enfants. 
                     if line.is_contrat_detail_id in deja_factures:
                         line.is_deja_facture = deja_factures[line.is_contrat_detail_id]
@@ -183,11 +195,19 @@ class AccountInvoice(models.Model):
                         line.is_deja_facture = 0
 
                     # mettre à jour odoo, la colonne rellement factures
-                    line.is_reellement_facture = signe*(line.quantity - line.is_deja_facture)
-                    line.is_montant_reellement_facture = abs(line.is_reellement_facture * line.price_unit)
+                    # if obj.type == "out_refund":
+                    #     line.is_reellement_facture = -(line.quantity)
+                    # else:
+                    #     line.is_reellement_facture = (line.quantity - line.is_deja_facture)
+
+                    if obj.type == "out_refund":
+                        line.is_reellement_facture = line.quantity - line.is_deja_facture
+                    else:
+                        line.is_reellement_facture = line.quantity - line.is_deja_facture
+                    line.is_montant_reellement_facture = line.is_reellement_facture * abs(line.price_unit)
                     # mettre à jour la liste des choses des "futurs" déjà facturées 
                     # comme la somme des déjà facturées + du reellement facturé de cette facture
-                    deja_factures[line.is_contrat_detail_id] = signe*line.is_reellement_facture + line.is_deja_facture
+                    deja_factures[line.is_contrat_detail_id] = line.is_reellement_facture + line.is_deja_facture
 
                 # mettre à jour le "now"
                 obj.is_date_update_facture = now
@@ -339,7 +359,7 @@ class AccountInvoice(models.Model):
                 deja_factures, visites = obj.update_deja_facture_recursif(deja_factures, visites, now)
                 t_end = datetime.now()
                 t = (t_end - t_start).total_seconds()
-                print(" --- facture %d / %d --- %s --- %.6f sec --- " %(i+1, N_max, obj.name, t))
+                print(" --- facture %d / %d --- %s --- %.6f sec --- " %(i+1, min(N_max, n_factures), obj.name, t))
             t_end_tot = datetime.now()
             print("Mise à jour de toutes les factures en %.6f secondes" %((t_end_tot - now).total_seconds()))
             i_start += N_max

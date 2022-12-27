@@ -151,17 +151,20 @@ class IsDossierContrat(models.Model):
     @api.depends('detail_ids')
     def compute_restant_ht(self):
         for obj in self:
-            # obj.compute_facture_recursif()
             restant_ht    = 0
             facturable_ht = 0
             if obj.signe=="oui":
                 for line in obj.detail_ids:
                     if line.facturable=="oui":
-                        restant_ht+=line.montant_ht-line.montant_ht*line.facture/100.0
+                        sens_ligne = 1
+                        if line.montant_a_facturer<0:
+                            sens_ligne = -1
+                        restant_ht += line.montant_ht-line.montant_ht*line.facture_recursif/100.0
                         #if line.a_facturer>line.facture:
-                        facturable_ht += line.montant_ht*(line.a_facturer-line.facture)/100.0
+                        facturable_ht += line.montant_ht*(line.a_facturer-line.facture_recursif)/100.0
             obj.restant_ht    = restant_ht
             obj.facturable_ht = facturable_ht
+            print("restant_ht %.4f  | facturable_ht %.4f " %(obj.restant_ht, obj.facturable_ht))
         return True
 
 
@@ -265,24 +268,13 @@ class IsDossierContrat(models.Model):
     #         #print(res)
     #         for line in obj.detail_ids:
     #             #print(line)
-    #             if line in res:
-    #                 facture_recursif = res[line]
-    #                 line.facture_recursif = facture_recursif*100
-
-
-
-
-
-
-
-
+    #             if line in res:compute_restant_ht(self)
 # TODO : La numérotation automatique pose problème à l'importation et pour faire le lien avec les factures si modification de celle-ci
 #    @api.multi
 #    def write(self, vals):
 #        res=super(IsDossierContrat, self).write(vals)
 #        for obj in self:
-#            numligne=10
-#            for line in obj.detail_ids:
+#            numligne=10line.montant_ht*(line.a_facturer-line.facture_recursif)/100.0
 #                line.numligne = numligne
 #                numligne+=10
 #        return res
@@ -290,7 +282,9 @@ class IsDossierContrat(models.Model):
 
     @api.multi
     def update_restant_ht_action(self):
-        print("WARNING: Cette fonction ne fait plus rien")
+        for obj in self:
+            obj.compute_restant_ht()
+        # print("WARNING: Cette fonction ne fait plus rien")
         # for obj in self:
 
             # if len(obj.invoice_ids)>13:
@@ -307,6 +301,10 @@ class IsDossierContrat(models.Model):
 
     @api.multi
     def update_reellement_facture_action(self):
+        for obj in self:
+            obj.update_reellement_facture_contrat(update_facture=True)
+
+    def update_reellement_facture_contrat(self, update_facture=False):
         """
         Pour chaque contrat:
         1. Update le nombre de factures dans le contrat
@@ -321,7 +319,9 @@ class IsDossierContrat(models.Model):
             obj.nb_factures = len(obj.invoice_ids)
 
             # 2. met à jour le reellement facturé de toutes les factures
-            #obj.invoice_ids.update_deja_facture_action()
+            # (seulement dans le cas de debug où on clique sur "actualiser reellement facture")
+            if update_facture:
+                obj.invoice_ids.update_deja_facture_action()
 
             # 3. Pour chaque service, récupérer le pourcentage de déjà facturé dans ce contrat
             # Pour cela: 
@@ -330,25 +330,26 @@ class IsDossierContrat(models.Model):
             factures_recursif = {} 
 
             # --- 3.1. récupérer tous les services et les factures --- 
+            factures = [f for f in obj.invoice_ids if f.state not in ['draft','cancel']]
             services = obj.detail_ids
             # Initialisation du dict de % de déjà facturé
             factures_recursif = { line : 0 for line in services } 
             
              # --- 3.2. maj du % de déjà facturé en parcourant chaque service de chaque facture --- 
-            for f in obj.invoice_ids:
+            for f in factures:
                 # Mettre à jour le reellement facturé pour les services de cette facture
                 for line in f.invoice_line_ids:
                     if line.is_contrat_detail_id:
                         # Somme des réellement facturé de chaque facture * le prix
-                        signe = 1
+                        signe_line = 1
                         if line.price_unit < 0:
-                            signe = -1    
-                        factures_recursif[line.is_contrat_detail_id] += signe*line.is_reellement_facture
+                            signe_line = 1    
+                        factures_recursif[line.is_contrat_detail_id] += signe_line*line.is_reellement_facture
 
             # Le transformer en pourcentage
             for s in services:
                 s.facture_recursif = factures_recursif[s]*100
-                anomalie += abs(s.facture_recursif - s.facture)*s.montant_ht/100
+                anomalie += abs(s.facture_recursif - s.a_facturer)*s.montant_ht/100
                     
             obj.anomalie = anomalie
         t_end = datetime.now()
@@ -370,133 +371,152 @@ class IsDossierContrat(models.Model):
 
     @api.multi
     def generer_facture_action(self, vals):
-        print("WARNING: cette fonction met seulement à jour le nombre de factures!")
         # le contrat (ou un des contrats si plusieurs contrats)
         for obj in self:
             # mettre à jour le nombre de factures dans ce contrat
             obj.nb_factures = len(obj.invoice_ids)
 
 
-
-
-            # # #** Recherche si il y a des lignes a facturer **********************
-            # # test=False
-            # # for line in obj.detail_ids:
-            # #     if line.a_facturer>line.facture:
-            # #         test=True
-            # # if test==False:
-            # #     raise Warning(u"Aucune ligne à facturer sur ce contrat")
-            # # #*******************************************************************
-
-
-            # #** Recherche du numéro de facture *********************************
-            # prefix = _get_prefix_annee()+'FC'
-            # filtre=[
-            #     ('number','like',prefix),
-            # ]
-            # invoices = self.env['account.invoice'].search(filtre,limit=1,order='number desc')
-            # suffix=1
-            # for invoice in invoices:
-            #     suffix = int(invoice.number[-3:])+1
-            # suffix = ('000'+str(suffix))[-3:]
-            # number  = prefix+suffix
-            # #*******************************************************************
-
-
-            # #** Création entête facture ****************************************
-            # invoice_type="out_invoice"
-            # sens=1
-            # if obj.facturable_ht<0:
-            #     invoice_type="out_refund"
-            #     sens=-1
-            # vals={
-            #     'name'              : number,
-            #     'origin'            : obj.name,
-            #     'move_name'         : number,
-            #     'number'            : number,
-            #     'partner_id'        : obj.client_id.id,
-            #     'is_contrat_id'     : obj.id,
-            #     'fiscal_position_id': 1,
-            #     'is_tva_id'         : obj.tva_id.id,
-            #     'type'              : invoice_type,
-            #     'state'             : 'draft',
-            # }
-            # invoice=self.env['account.invoice'].create(vals)
-            # invoice_id = invoice.id
-            # #*******************************************************************
-
-            # #** Création lignes du contrat *************************************
+            # #** Recherche si il y a des lignes a facturer **********************
+            # test=False
             # for line in obj.detail_ids:
-            #     if line.commentaire:
-            #         vals={
-            #             'invoice_id': invoice_id,
-            #             'is_contrat_detail_id': line.id,
-            #             'display_type': 'line_note',
-            #             'name'      : line.texte,
-            #             'quantity'  : False,
-            #             'price_unit': False,
-            #             'account_id': False,
-            #         }
-            #         invoice_line=self.env['account.invoice.line'].create(vals)
-            #     else:
-            #         quantity = line.a_facturer/100.0
-            #         vals={
-            #             'invoice_id': invoice_id,
-            #             'is_contrat_detail_id': line.id,
-            #             'product_id': 1,
-            #             'name'      : line.texte,
-            #             'quantity'  : quantity,
-            #             'price_unit': sens*line.montant_ht,
-            #             'account_id': 622, #701100
-            #         }
-            #         invoice_line=self.env['account.invoice.line'].create(vals)
-            #         line_res = invoice_line.uptate_onchange_product_id()
-            #         vals={
-            #             'name'      : line.texte,
-            #             'price_unit': sens*line.montant_ht,
-            #         }
-            #         invoice_line.write(vals)
+            #     if line.a_facturer>line.facture:
+            #         test=True
+            # if test==False:
+            #     raise Warning(u"Aucune ligne à facturer sur ce contrat")
             # #*******************************************************************
 
-            # #** Ajout des factures réalisées ***********************************
-            # filtre=[
-            #     ('is_contrat_id','=',obj.id),
-            #     ('date_invoice','<=',date.today()),
-            #     ('state','not in',['cancel']),
-            #     ('id','!=',invoice_id),
-            # ]
-            # factures = self.env['account.invoice'].search(filtre,order='date_invoice')
-            # for facture in  factures:
-            #     vals={
-            #         'invoice_id'   : invoice_id,
-            #         'product_id'   : 2,
-            #         'name'         : facture.number,
-            #         'quantity'     : 1,
-            #         #'price_unit'   : -facture.amount_untaxed,
-            #         'price_unit'   : 0,
-            #         'account_id'   : 622, #701100
-            #         'is_invoice_id': facture.id,
-            #     }
-            #     invoice_line=self.env['account.invoice.line'].create(vals)
-            #     line_res = invoice_line.uptate_onchange_product_id()
-            #     vals={
-            #         'name'      : facture.number,
-            #         #'price_unit': -facture.amount_untaxed,
-            #         'price_unit'   : -sens*facture.is_montant_hors_revision,
-            #     }
-            #     invoice_line.write(vals)
-            # #*******************************************************************
 
-            # #** Recalcul de la TVA et validation de la facture *****************
-            # res_validate = invoice.update_tva_account_action()
-            # res_validate = invoice.compute_taxes()
-            # try:
-            #    res_validate = invoice.action_invoice_open()
-            # except:
-            #    continue
-            # #*******************************************************************
+            #** Recherche du numéro de facture *********************************
+            prefix = _get_prefix_annee()+'FC'
+            filtre=[
+                ('number','like',prefix),
+            ]
+            invoices = self.env['account.invoice'].search(filtre,limit=1,order='number desc')
+            suffix=1
+            for invoice in invoices:
+                suffix = int(invoice.number[-3:])+1
+            suffix = ('000'+str(suffix))[-3:]
+            number  = prefix+suffix
+            #*******************************************************************
 
-            # obj.compute_restant_ht()
+
+            #** Création entête facture ****************************************
+            invoice_type="out_invoice"
+            sens_facture=1
+            if obj.facturable_ht<0:
+                invoice_type="out_refund"
+                sens_facture=-1
+            print(invoice_type, obj.facturable_ht)
+            vals={
+                'name'              : number,
+                'origin'            : obj.name,
+                'move_name'         : number,
+                'number'            : number,
+                'partner_id'        : obj.client_id.id,
+                'is_contrat_id'     : obj.id,
+                'fiscal_position_id': 1,
+                'is_tva_id'         : obj.tva_id.id,
+                'type'              : invoice_type,
+                'state'             : 'draft',
+            }
+
+            invoice=self.env['account.invoice'].create(vals)
+            invoice_id = invoice.id
+            #*******************************************************************
+
+            #** Création lignes du contrat *************************************
+            for line in obj.detail_ids:
+                if line.commentaire:
+                    vals={
+                        'invoice_id': invoice_id,
+                        'is_contrat_detail_id': line.id,
+                        'display_type': 'line_note',
+                        'name'      : line.texte,
+                        'quantity'  : False,
+                        # 'price_unit': False,
+                        'account_id': False,
+                    }
+                    invoice_line=self.env['account.invoice.line'].create(vals)
+                else:
+                    sens_ligne = 1
+                    if line.montant_ht*(line.a_facturer-line.facture_recursif) < 0:
+                        sens_ligne = -1
+                    quantity = line.a_facturer/100.0
+                    vals={
+                        'invoice_id': invoice_id,
+                        'is_contrat_detail_id': line.id,
+                        'product_id': 1,
+                        'name'      : line.texte,
+                        'quantity'  : quantity,
+                        # 'price_unit': sens_facture*line.montant_ht,     Ceci donne tout bon mais à l'opposé
+                        #'price_unit': line.montant_ht,  # Ceci donne tout bon! 1/3
+                        'price_unit': False,
+                        #'price_unit': line.montant_ht,
+                        'account_id': 622, #701100
+                    }
+                    invoice_line=self.env['account.invoice.line'].create(vals)
+                    line_res = invoice_line.uptate_onchange_product_id()
+                    vals={
+                        'name'      : line.texte,
+                        #'price_unit': sens_ligne*line.montant_ht,
+                        # 'price_unit': line.montant_ht,    Ceci donne tout bon mais à l'opposé
+                        'price_unit': sens_facture*line.montant_ht,  # Ceci donne presque bon! 2/3
+                    }
+                    invoice_line.write(vals)
+            #*******************************************************************
+
+            #** Ajout des factures réalisées ***********************************
+            filtre=[
+                ('is_contrat_id','=',obj.id),
+                ('date_invoice','<=',date.today()),
+                ('state','not in',['cancel']),
+                ('id','!=',invoice_id),
+            ]
+            factures = self.env['account.invoice'].search(filtre,order='date_invoice')
+            for facture in factures:
+                sens_ligne_facture = 1
+                if facture.type == "out_refund":
+                    sens_ligne_facture = -1
+                vals={
+                    'invoice_id'   : invoice_id,
+                    'product_id'   : 2,
+                    'name'         : facture.number,
+                    'quantity'     : 1,
+                    #'price_unit'   : -facture.amount_untaxed,
+                    'price_unit'   : 0,
+                    'account_id'   : 622, #701100
+                    'is_invoice_id': facture.id,
+                }
+                invoice_line=self.env['account.invoice.line'].create(vals)
+                line_res = invoice_line.uptate_onchange_product_id()
+                vals={
+                    'name'      : facture.number,
+                    #'price_unit': -facture.amount_untaxed,
+                    # 'price_unit'   : -facture.is_montant_hors_revision,   Ceci donne tout bon mais à l'opposé
+                    #'price_unit'   : -sens_facture*facture.is_montant_hors_revision, # Ceci donne presque bon! 3/3
+
+                    # On veut que le montant final d'une invoice soit positif quelque soit le type d'invoice
+                    # Donc on veut que les lignes des invoices précédentes soient en moins si sont type est different
+                    # du type de l'invoice donc "-(sens_facture*sens_ligne_facture)"
+                    'price_unit'   : -(sens_facture*sens_ligne_facture)*facture.is_montant_hors_revision, # Ceci donne tout bon! 3/3
+                }
+                invoice_line.write(vals)
+            #*******************************************************************
+
+            #** Recalcul de la TVA et validation de la facture *****************
+            res_validate = invoice.update_tva_account_action()
+            res_validate = invoice.compute_taxes()
+            try:
+               res_validate = invoice.action_invoice_open()
+            except:
+               continue
+            #*******************************************************************
+
+            #*******************************************************************
+            invoice.update_deja_facture_action()
+            obj.update_reellement_facture_contrat()
+            obj.compute_restant_ht()
 
 
 class IsDossierContratDetail(models.Model):
@@ -514,29 +534,32 @@ class IsDossierContratDetail(models.Model):
 
     @api.depends('a_facturer')
     def _compute_facture(self):
-        cr = self._cr
+        # Montant hors taxe *(a_facture - facture_recursif)/100
         for obj in self:
-            montant_a_facturer=montant_facture=facture=0
-            if obj.montant_ht>0 and obj.id:
-                SQL="""
-                    select max(ail.price_subtotal)
-                    from account_invoice_line ail inner join account_invoice ai on ail.invoice_id=ai.id
-                    where 
-                        ail.is_contrat_detail_id="""+str(obj.id)+""" and
-                        ai.state not in ('cancel')
-                """
-                cr.execute(SQL)
-                result = cr.fetchall()
-                montant=0
-                for row in result:
+            obj.montant_a_facturer = obj.montant_ht*(obj.a_facturer-obj.facture_recursif)/100
+        # cr = self._cr
+        # for obj in self:
+        #     montant_a_facturer=montant_facture=facture=0
+        #     if obj.montant_ht>0 and obj.id:
+        #         SQL="""
+        #             select max(ail.price_subtotal)
+        #             from account_invoice_line ail inner join account_invoice ai on ail.invoice_id=ai.id
+        #             where 
+        #                 ail.is_contrat_detail_id="""+str(obj.id)+""" and
+        #                 ai.state not in ('cancel')
+        #         """
+        #         cr.execute(SQL)
+        #         result = cr.fetchall()
+        #         montant=0
+        #         for row in result:
 
-                    montant = row[0] or 0
-                facture=100.0*montant/obj.montant_ht
-                montant_facture = montant
-                montant_a_facturer = obj.montant_ht*(obj.a_facturer-facture)/100
-            obj.facture=facture
-            obj.montant_a_facturer=montant_a_facturer
-            obj.montant_facture=montant_facture
+        #             montant = row[0] or 0
+        #         facture=100.0*montant/obj.montant_ht
+        #         montant_facture = montant
+        #         montant_a_facturer = obj.montant_ht*(obj.a_facturer-facture)/100
+        #     obj.facture=facture
+        #     obj.montant_a_facturer=montant_a_facturer
+        #     obj.montant_facture=montant_facture
 
 
 
