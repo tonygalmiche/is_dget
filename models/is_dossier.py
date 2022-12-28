@@ -201,7 +201,7 @@ class IsDossierContrat(models.Model):
     facturable_ht = fields.Float(u"Facturable HT", digits=(14,2), compute='compute_restant_ht', readonly=True, store=True)
     heure_ids     = fields.One2many('is.salarie.heure', 'contrat_id', u'Heures', readonly=True)
     tva_id        = fields.Many2one('is.tva', u'TVA')
-    anomalie      = fields.Float(u"Anomalie")
+    anomalie      = fields.Float(u"Anomalie", default=0)
 
 
 
@@ -368,7 +368,6 @@ class IsDossierContrat(models.Model):
 
     @api.multi
     def generer_facture_action(self, vals):
-        # le contrat (ou un des contrats si plusieurs contrats)
         for obj in self:
             # mettre à jour le nombre de factures dans ce contrat
             obj.nb_factures = len(obj.invoice_ids)
@@ -404,7 +403,6 @@ class IsDossierContrat(models.Model):
             if obj.facturable_ht<0:
                 invoice_type="out_refund"
                 sens_facture=-1
-            print(invoice_type, obj.facturable_ht)
             vals={
                 'name'              : number,
                 'origin'            : obj.name,
@@ -436,9 +434,6 @@ class IsDossierContrat(models.Model):
                     }
                     invoice_line=self.env['account.invoice.line'].create(vals)
                 else:
-                    sens_ligne = 1
-                    if line.montant_ht*(line.a_facturer-line.facture_recursif) < 0:
-                        sens_ligne = -1
                     quantity = line.a_facturer/100.0
                     vals={
                         'invoice_id': invoice_id,
