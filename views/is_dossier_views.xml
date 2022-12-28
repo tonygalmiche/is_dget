@@ -403,14 +403,14 @@
                     </group>
                     <group>
                         <field name="invoice_ids" nolabel="1">
-                            <tree>
+                            <tree decoration-danger="amount_untaxed_invoice_signed &lt; 0">
                                 <button string="Facture" name="acceder_facture_action" type="object" icon="fa-search-plus"/>
                                 <field name="number"/>
                                 <field name="date_invoice"/>
                                 <field name="date_due"/>
-                                <field name="amount_untaxed_invoice_signed" sum="Total" string="Montant HT"/>
-                                <field name="is_montant_revision"           sum="Total"/>
-                                <field name="is_montant_hors_revision"      sum="Total"/>
+                                <field name="amount_untaxed_invoice_signed"  sum="Total" string="Montant HT"/>
+                                <field name="is_montant_revision"            sum="Total"/>
+                                <field name="is_montant_hors_revision_signe" sum="Total"/>
                                 <field name="state" string="État"/>
                             </tree>
                         </field>
