@@ -522,6 +522,7 @@ class IsDossierContratDetail(models.Model):
         # Montant hors taxe *(a_facture - facture_recursif)/100
         for obj in self:
             obj.montant_a_facturer = obj.montant_ht*(obj.a_facturer-obj.facture_recursif)/100
+            obj.montant_facture    = obj.montant_ht*(obj.facture_recursif)/100
         # cr = self._cr
         # for obj in self:
         #     montant_a_facturer=montant_facture=facture=0
