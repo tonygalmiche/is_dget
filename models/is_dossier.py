@@ -160,7 +160,7 @@ class IsDossierContrat(models.Model):
                         facturable_ht += line.montant_ht*(line.a_facturer-line.facture_recursif)/100.0
             obj.restant_ht    = restant_ht
             obj.facturable_ht = facturable_ht
-            print("restant_ht %.4f  | facturable_ht %.4f " %(obj.restant_ht, obj.facturable_ht))
+            #print("restant_ht %.4f  | facturable_ht %.4f " %(obj.restant_ht, obj.facturable_ht))
         return True
 
 
@@ -261,9 +261,7 @@ class IsDossierContrat(models.Model):
     #                 res[is_contrat_detail_id]+=line["sens"]*line["quantity"]
 
 
-    #         #print(res)
     #         for line in obj.detail_ids:
-    #             #print(line)
     #             if line in res:compute_restant_ht(self)
 # TODO : La numérotation automatique pose problème à l'importation et pour faire le lien avec les factures si modification de celle-ci
 #    @api.multi
@@ -279,21 +277,17 @@ class IsDossierContrat(models.Model):
     @api.multi
     def update_restant_ht_action(self):
         for obj in self:
-            print("bouton actualisé restant ht")
+            #print("bouton actualisé restant ht")
             obj.compute_restant_ht()
-        # print("WARNING: Cette fonction ne fait plus rien")
         # for obj in self:
 
             # if len(obj.invoice_ids)>13:
-            #     print(ct,"\t",obj.name,"\t",len(obj.invoice_ids))
             #     ct+=1
 
             # if len(obj.invoice_ids)==19:
-            #     print("D","\t", ct,"\t",nb,"\t",obj.name,"\t",len(obj.invoice_ids))
             #     dt = datetime.now()
             #     obj.compute_restant_ht()
             #     tps = (datetime.now()-dt).total_seconds()
-            #     print("F","\t", ct,"\t",nb,"\t",obj.name,"\t",len(obj.invoice_ids),"\t",tps)
             # ct+=1
 
     @api.multi
@@ -350,7 +344,7 @@ class IsDossierContrat(models.Model):
                     
             obj.anomalie = anomalie
         t_end = datetime.now()
-        print("Mise à jour de tous les contrats en %.6f secondes" %((t_end - t_start).total_seconds()))
+        #print("Mise à jour de tous les contrats en %.6f secondes" %((t_end - t_start).total_seconds()))
 
     @api.multi
     def acceder_contrat_action(self, vals):
@@ -638,7 +632,7 @@ class IsDeclarationMAF(models.Model):
         SQL="SELECT code,ordre FROM is_dossier_code_assurance where id="+str(code_id)
         cr.execute(SQL)
         rows = cr.fetchall()
-        code=''
+        code='0'
         ordre=''
         for row in rows:
             code  = row[0]
@@ -697,10 +691,14 @@ class IsDeclarationMAF(models.Model):
                 ai.date_invoice<='"""+str(obj.name)+"""-12-31'
             order by ai.name,ail.sequence
         """
+        # and idc.name in ('34CT015-6','34CT018-1')
         cr.execute(SQL)
         rows = cr.fetchall()
         nb=len(rows)
         r={}
+
+
+
         for row in rows:
             contrat = row[10]
             if contrat not in r:
@@ -710,26 +708,35 @@ class IsDeclarationMAF(models.Model):
                 if row[0]:
                     if row[0] not in r[contrat]:
                         r[contrat][row[0]]=0
-                    #r[contrat][row[0]]+=row[4]*qty
                     r[contrat][row[0]]+=row[23] or 0
 
                 if row[1]:
                     if row[1] not in r[contrat]:
                         r[contrat][row[1]]=0
-                    #r[contrat][row[1]]+=row[5]*qty
                     r[contrat][row[1]]+=row[24] or 0
 
                 if row[2]:
                     if row[2] not in r[contrat]:
                         r[contrat][row[2]]=0
-                    #r[contrat][row[2]]+=row[6]*qty
                     r[contrat][row[2]]+=row[25] or 0
 
                 if row[3]:
                     if row[3] not in r[contrat]:
                         r[contrat][row[3]]=0
-                    #r[contrat][row[3]]+=row[7]*qty
                     r[contrat][row[3]]+=row[26] or 0
+
+
+                if not row[0] and not row[1] and not row[2] and not row[3]:
+                    if 0 not in r[contrat]:
+                        r[contrat][0]=0
+                    r[contrat][0]+=row[17] or 0
+                    #r[contrat][0]+=row[23] or 0
+                    #r[contrat][0]+=row[24] or 0
+                    #r[contrat][0]+=row[25] or 0
+                    #r[contrat][0]+=row[26] or 0
+
+
+
 
         keys=sorted(r.keys(), reverse=True)
         total=0
@@ -751,7 +758,7 @@ class IsDeclarationMAF(models.Model):
                 if contrats:
                     contrat=contrats[0]
                     traitance = contrat.traitance_id.code or ''
-                    cle=code+' '+traitance
+                    cle=code+' - '+traitance
                     if cle not in recap:
                         recap[cle]=0
                     recap[cle]+=montant

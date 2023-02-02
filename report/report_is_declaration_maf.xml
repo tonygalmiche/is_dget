@@ -244,9 +244,9 @@
                                         <div><b>Localisation du chantier : </b></div>
                                         <div><span t-esc="c['contrat'].dossier_id.codepostal"/> <span t-esc="c['contrat'].dossier_id.lieu"/></div>
                                     </td>
-                                    <td style="border:1px solid black;text-align:center"><span t-esc="c['code']"/></td>
-                                    <td style="border:1px solid black;text-align:center"><span t-esc="c['traitance']"/></td>
-                                    <td style="border:1px solid black;text-align:center"><span t-esc="'{:,.2f} €'.format(c['montant']).replace(',',' ').replace('.',',')"/></td>
+                                    <td style="border:1px solid black;text-align:center;vertical-align: middle;"><span t-esc="c['code']"/></td>
+                                    <td style="border:1px solid black;text-align:center;vertical-align: middle;"><span t-esc="c['traitance']"/></td>
+                                    <td style="border:1px solid black;text-align:center;vertical-align: middle;"><span t-esc="'{:,.2f} €'.format(c['montant']).replace(',',' ').replace('.',',')"/></td>
                                     <td>&#160;</td>
                                     <td>&#160;</td>
                                 </tr>
@@ -283,7 +283,9 @@
                 </t>
 
                 <div style="page-break-after:always;" />
-                <table style="border:1px solid black; width:30%;margin-left:30%;margin-right:30%">
+                <h1>Récapitulatif DGET <span t-field="o.name"/></h1>
+                <br />
+                <table style="border:1px solid black; width:40%;margin-left:30%;margin-right:30%">
                     <thead>
                         <tr>
                             <th style="border:1px solid black;text-align:center;width:50%">Codes MAF</th>
@@ -295,7 +297,8 @@
                         <t t-foreach="contrats[1]" t-as="c">
                             <t t-set="montant" t-value="c[1]"/>
                             <t t-set="total"   t-value="total+montant"/>
-                            <tr style="height:8mm;white-space: nowrap;">
+
+                            <tr t-if="montant>0" style="height:8mm;white-space: nowrap;">
                                 <td style="border:1px solid black;text-align:center"><span t-esc="c[0]"/></td>
                                 <td style="border:1px solid black;text-align:right"><span t-esc="'{:,.2f} €'.format(montant).replace(',',' ').replace('.',',')"/></td>
                             </tr>
