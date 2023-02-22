@@ -99,6 +99,7 @@
                     <field name="type"/>
                     <field name="is_contrat_id"/>
                     <field name="is_dossier_id"/>
+                    <field name="is_facture_payee"/>
                 </field>
             </field>
         </record>
