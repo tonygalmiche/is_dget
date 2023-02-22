@@ -52,6 +52,7 @@
                     <field name="is_montant_hors_revision"/>
                     <field name="is_dossier_id"/>
                     <field name="is_tva_id"/>
+                    <field name="is_facture_payee"/>
                 </field>
                 <xpath expr="//page[1]/field[@name='invoice_line_ids']/tree/field[@name='name']" position="after">
                     <field name="is_contrat_detail_id"           readonly="1" domain="[('contrat_id','=',parent.is_contrat_id)]"/>
@@ -80,10 +81,12 @@
                     <field name="is_contrat_id"/>
                     <field name="is_dossier_id"/>
                 </field>
-
                 <field name="state" position="before">
                     <field name="is_montant_revision"/>
                     <field name="is_montant_hors_revision"/>
+                </field>
+                <field name="state" position="after">
+                    <field name="is_facture_payee"/>
                 </field>
             </field>
         </record>

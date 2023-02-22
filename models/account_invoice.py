@@ -53,6 +53,7 @@ class AccountInvoice(models.Model):
     is_dossier_id            = fields.Many2one('is.dossier', u"Dossier"       , compute='_compute_dossier_id'      , readonly=True, store=True, index=True)
     is_tva_id                = fields.Many2one('is.tva', u'TVA')
     is_date_update_facture   = fields.Datetime("Date mise à jour déjà facturé")
+    is_facture_payee         = fields.Selection([('oui','Oui'),('non','Non')],"Payée", default="non", required=True)
 
 
     @api.multi
