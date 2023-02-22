@@ -240,7 +240,7 @@
                                         <div><b>Date début de mission : </b><span t-esc="c['contrat'].date.strftime('%d/%m/%Y')"/></div>
                                         <div><b>Mission terminée : </b>Non</div>
                                         <div><b>Client : </b><span t-esc="c['contrat'].client_id.name"/></div>
-                                        <div><span t-esc="c['contrat'].client_id.name"/> - <span t-esc="c['contrat'].client_id.zip"/><span t-esc="c['contrat'].client_id.street"/></div>
+                                        <div><span t-esc="c['contrat'].client_id.zip"/><span t-esc="c['contrat'].client_id.street"/></div>
                                         <div><b>Localisation du chantier : </b></div>
                                         <div><span t-esc="c['contrat'].dossier_id.codepostal"/> <span t-esc="c['contrat'].dossier_id.lieu"/></div>
                                     </td>

@@ -762,13 +762,14 @@ class IsDeclarationMAF(models.Model):
                     if cle not in recap:
                         recap[cle]=0
                     recap[cle]+=montant
-                    vals={
-                        'contrat'  : contrat,
-                        'code'     : code,
-                        'traitance': traitance,
-                        'montant'  : montant,
-                    }
-                    res.append(vals)
+                    if montant>0:
+                        vals={
+                            'contrat'  : contrat,
+                            'code'     : code,
+                            'traitance': traitance,
+                            'montant'  : montant,
+                        }
+                        res.append(vals)
                     total+=r[k][code_id]
         keys=sorted(recap.keys(), reverse=False)
         recap2=[]
