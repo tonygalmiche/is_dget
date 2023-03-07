@@ -13,7 +13,8 @@
                             border-width:1px;
                             border-style:solid; 
                             border-color:gray;
-                            padding:0.5mm;
+                            padding:0;
+                            margin:0;
                             padding-left:1mm;
                             padding-right:1mm;
                         }
