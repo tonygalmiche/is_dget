@@ -170,7 +170,8 @@
                                     <t t-if="line.display_type!='line_note'">
                                         <t t-if="line.product_id.name!='Facture' and line.product_id.name!='Révisions'">
                                             <t t-set="quantity" t-value="line.quantity*100.0"/>
-                                            <t t-set="total1" t-value="total1+abs(line.price_unit)"/>
+                                            <!-- <t t-set="total1" t-value="total1+abs(line.price_unit)"/> -->
+                                            <t t-set="total1" t-value="total1+line.price_unit"/>
                                             <t t-set="total2" t-value="total2+line.price_subtotal"/>
                                             <td>
                                                 <span t-field="line.name"/>
