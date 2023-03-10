@@ -65,6 +65,24 @@ class AccountInvoice(models.Model):
         return result
 
 
+    @api.multi
+    def _get_report_base_filename(self):
+        if self.type in ['out_invoice','in_invoice']:
+            prefix = "Facture"
+        else:
+            prefix = "Avoir"
+        date = self.date_invoice.strftime('%y%m%d')
+        name="%s_%s"%(date,self.number)
+        return name
+
+        # return  self.type == 'out_invoice' and self.state == 'draft' and _('Draft Invoice') or \
+        #         self.type == 'out_invoice' and self.state in ('open','in_payment','paid') and _('Invoice - %s') % (self.number) or \
+        #         self.type == 'out_refund' and self.state == 'draft' and _('Credit Note') or \
+        #         self.type == 'out_refund' and _('Credit Note - %s') % (self.number) or \
+        #         self.type == 'in_invoice' and self.state == 'draft' and _('Vendor Bill') or \
+        #         self.type == 'in_invoice' and self.state in ('open','in_payment','paid') and _('Vendor Bill - %s') % (self.number) or \
+        #         self.type == 'in_refund' and self.state == 'draft' and _('Vendor Credit Note') or \
+        #         self.type == 'in_refund' and _('Vendor Credit Note - %s') % (self.number)
 
 
     @api.multi
