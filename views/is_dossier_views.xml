@@ -284,15 +284,9 @@
         <field name="model">is.dossier.contrat</field>
         <field name="arch" type="xml">
             <form>
-                <!--
                 <header>
-                    <button
-                        name="generer_facture_action"
-                        type="object"
-                        string="Générer facture"
-                    />
+                    <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
                 </header>
-                -->
                 <sheet>
                     <style>
                         .o_form_view .o_form_sheet_bg > .o_form_sheet{
@@ -437,19 +431,19 @@
         <field name="name">is.dossier.contrat.tree</field>
         <field name="model">is.dossier.contrat</field>
         <field name="arch" type="xml">
-            <tree>
+            <tree decoration-muted="state == 'termine'">
                 <field name="name"/>
                 <field name="signe"/>
                 <field name="dossier_id"/>
                 <field name="client_id"/>
                 <field name="description"/>
-                <field name="date"/> <!-- TODO : Bug   Error: '201-02-26' n'est pas une date valide -->
+                <field name="date"/>
                 <field name="refclient"/> 
                 <field name="traitance_id"/>
                 <field name="restant_ht"    sum="Total"/>
                 <field name="facturable_ht" sum="Total"/>
                 <field name="nb_factures"/>
-                <!-- <field name="anomalie"/> -->
+                <field name="state"/>
             </tree>
         </field>
     </record>
@@ -475,7 +469,7 @@
         <field name="view_type">form</field>
         <field name="limit">200</field>
         <field name="view_mode">tree,form</field>
-        <field name="domain">[('restant_ht','&gt;',0)]</field>
+        <field name="domain">[('restant_ht','&gt;',0),('state','=','en_cours')]</field>
     </record>
     <record  id="is_dossier_contrat_facturable_action" model="ir.actions.act_window">
         <field name="name">Contrats facturables</field>
@@ -483,7 +477,7 @@
         <field name="view_type">form</field>
         <field name="limit">200</field>
         <field name="view_mode">tree,form</field>
-        <field name="domain">[('facturable_ht','&gt;',0)]</field>
+        <field name="domain">[('facturable_ht','&gt;',0),('state','=','en_cours')]</field>
     </record>
     <record  id="is_dossier_contrat_action" model="ir.actions.act_window">
         <field name="name">Tous les contrats</field>

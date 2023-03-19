@@ -202,7 +202,7 @@ class IsDossierContrat(models.Model):
     heure_ids     = fields.One2many('is.salarie.heure', 'contrat_id', u'Heures', readonly=True)
     tva_id        = fields.Many2one('is.tva', u'TVA')
     anomalie      = fields.Float(u"Anomalie", default=0)
-
+    state         = fields.Selection([('en_cours','En cours'),('termine','Terminé')],"Etat", default='en_cours')
 
 
     # def get_invoice_line_recursif(self, compteur, niveau, lines, sens, invoice, invoices):

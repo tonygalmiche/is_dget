@@ -238,7 +238,7 @@
                                     <td style="border:1px solid black;">
                                         <div><b>Référence : </b><span t-esc="c['contrat'].name"/> : <span t-esc="c['contrat'].dossier_id.nom"/></div>
                                         <div><b>Date début de mission : </b><span t-esc="c['contrat'].date and c['contrat'].date.strftime('%d/%m/%Y') or ''"/></div>
-                                        <t t-if="c['contrat'].restant_ht>0">
+                                        <t t-if="c['contrat'].state=='en_cours'">
                                             <div><b>Mission terminée : </b>Non</div>
                                         </t>
                                         <t t-else="">
