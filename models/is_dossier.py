@@ -571,15 +571,15 @@ class IsDossierContratDetail(models.Model):
 
     montant_ht  = fields.Float(u"Montant HT", digits=(14,2), compute='_compute_montant_ht', readonly=True, store=True)
 
-    avancement  = fields.Float(u"% avancement")
+    avancement  = fields.Float(u"% avancement", digits=(14,4))
     nota        = fields.Char(u"Nota")
     facturable  = fields.Selection([('oui','Oui'),('non','Non')],"Facturable", default='oui')
-    a_facturer  = fields.Float(u"% à facturer")
-    facture            = fields.Float(u"% facturé"         , compute='_compute_facture', readonly=True, store=False)
+    a_facturer  = fields.Float(u"% à facturer", digits=(14,4))
+    facture            = fields.Float(u"% facturé"         , compute='_compute_facture', readonly=True, store=False, digits=(14,4))
     montant_a_facturer = fields.Float(u"Montant à facturer", compute='_compute_facture', readonly=True, store=False)
     montant_facture    = fields.Float(u"Montant facturé"   , compute='_compute_facture', readonly=True, store=False)
 
-    facture_recursif   = fields.Float("% facturé récursif")
+    facture_recursif   = fields.Float("% facturé récursif", digits=(14,4))
 
 
 class IsDossierContratPhase(models.Model):
