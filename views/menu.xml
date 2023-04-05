@@ -113,14 +113,20 @@
             sequence="40"
             action="is_dossier_contrat_detail_maf_action"
         />
-        <menuitem
+        <!-- <menuitem
             id="is_dossier_contrat_detail_facturable_menu"
             name="Détail Contrat Facturable"
             parent="is_contrat_main_menu"
             sequence="50"
             action="is_dossier_contrat_detail_facturable_action"
+        /> -->
+        <menuitem
+            id="is_dossier_contrat_detail_encours_a_facturer_menu"
+            name="Détail contrat Encours + A facturer"
+            parent="is_contrat_main_menu"
+            sequence="60"
+            action="is_dossier_contrat_detail_encours_a_facturer_action"
         />
-
 
 
         <!-- Heures -->

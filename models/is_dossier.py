@@ -513,42 +513,36 @@ class IsDossierContratDetail(models.Model):
 
     @api.depends('a_facturer')
     def _compute_facture(self):
-        # Montant hors taxe *(a_facture - facture_recursif)/100
         for obj in self:
             obj.montant_a_facturer = obj.montant_ht*(obj.a_facturer-obj.facture_recursif)/100
             obj.montant_facture    = obj.montant_ht*(obj.facture_recursif)/100
-        # cr = self._cr
-        # for obj in self:
-        #     montant_a_facturer=montant_facture=facture=0
-        #     if obj.montant_ht>0 and obj.id:
-        #         SQL="""
-        #             select max(ail.price_subtotal)
-        #             from account_invoice_line ail inner join account_invoice ai on ail.invoice_id=ai.id
-        #             where 
-        #                 ail.is_contrat_detail_id="""+str(obj.id)+""" and
-        #                 ai.state not in ('cancel')
-        #         """
-        #         cr.execute(SQL)
-        #         result = cr.fetchall()
-        #         montant=0
-        #         for row in result:
-
-        #             montant = row[0] or 0
-        #         facture=100.0*montant/obj.montant_ht
-        #         montant_facture = montant
-        #         montant_a_facturer = obj.montant_ht*(obj.a_facturer-facture)/100
-        #     obj.facture=facture
-        #     obj.montant_a_facturer=montant_a_facturer
-        #     obj.montant_facture=montant_facture
-
-
-
+            encours=0
+            montant_encours=0
+            restant=0
+            montant_restant=0
+            if obj.facturable=='oui':
+                if obj.montant_facture>0:
+                    restant=100-obj.facture_recursif
+                    montant_restant = obj.montant_ht - obj.montant_facture
+                else:
+                    encours=100-obj.facture_recursif
+                    montant_encours = obj.montant_ht - obj.montant_facture
+            obj.encours = encours
+            obj.montant_encours = montant_encours
+            obj.restant = restant
+            obj.montant_restant = montant_restant
 
 
     contrat_id  = fields.Many2one('is.dossier.contrat', 'Contrat', required=True, ondelete='cascade')
+    state       = fields.Selection(related='contrat_id.state')
+    dossier_id  = fields.Many2one(related='contrat_id.dossier_id')
+    description = fields.Char(related='contrat_id.description')
+
     numligne    = fields.Integer(u"Ligne")
     commentaire = fields.Boolean(u"Commentaire", default=False)
     phase_id    = fields.Many2one('is.dossier.contrat.phase', 'Phase')
+    det_phase   = fields.Char(u"Description Phase", related='phase_id.det_phase')
+
     texte       = fields.Char(u"Description")
     dateremise  = fields.Date(u"Date")
     facture_le  = fields.Date(u"Pour le")
@@ -580,6 +574,14 @@ class IsDossierContratDetail(models.Model):
     montant_facture    = fields.Float(u"Montant facturé"   , compute='_compute_facture', readonly=True, store=False)
 
     facture_recursif   = fields.Float("% facturé récursif", digits=(14,4))
+
+    encours         = fields.Float(u"% En cours"                , digits=(14,4), compute='_compute_facture', readonly=True, store=False)
+    montant_encours = fields.Float(u"Montant en cours"          , digits=(14,2), compute='_compute_facture', readonly=True, store=False)
+    restant         = fields.Float(u"% Restant à facturer"      , digits=(14,4), compute='_compute_facture', readonly=True, store=False)
+    montant_restant = fields.Float(u"Montant restant à facturer", digits=(14,2), compute='_compute_facture', readonly=True, store=False)
+
+
+
 
 
 class IsDossierContratPhase(models.Model):

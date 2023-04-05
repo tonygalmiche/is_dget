@@ -642,11 +642,13 @@
         <field name="arch" type="xml">
             <form>
                 <sheet>
-
                     <group>
                         <field name="contrat_id"/>
+                        <field name="dossier_id"/>
+                        <field name="description"/>
                         <field name="numligne"/>
                         <field name="phase_id" required="1"/>
+                        <field name="det_phase"/>
                         <field name="texte"    required="1"/>
                         <field name="avancement"/>
                         <field name="nota"/>
@@ -709,14 +711,13 @@
         <field name="arch" type="xml">
             <search>
                 <field name="contrat_id"/>
+                <field name="state"/>
+                <field name="dossier_id"/>
+                <field name="description"/>
                 <field name="phase_id"/>
                 <field name="texte"/>
-
                 <field name="codass1_id" string="Code assurance"
                        filter_domain="['|','|','|', ('codass1_id','=',self), ('codass2_id','=',self), ('codass3_id', '=', self), ('codass4_id', '=', self)]"/>
-
-
-
            </search>
         </field>
     </record>
@@ -787,6 +788,45 @@
     </record>
 
 
+    <record id="is_dossier_contrat_detail_encours_a_facturer_tree" model="ir.ui.view">
+        <field name="name">is_dossier_contrat_detail_encours_a_facturer_tree</field>
+        <field name="model">is.dossier.contrat.detail</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="contrat_id"/>
+                <field name="dossier_id"/>
+                <field name="description"/>
+                <field name="numligne"/>
+                <field name="phase_id"/>
+                <field name="det_phase"/>
+                <field name="montant_ht"         sum="Total"/>
+                <field name="avancement"/>
+                <field name="facture_recursif"               string="% déjà facturé"/>
+                <field name="montant_facture"    sum="Total" string="Montant déjà facturé"/>
+                <field name="encours"/>
+                <field name="montant_encours" sum="Total"/>
+                <field name="restant"/>
+                <field name="montant_restant" sum="Total"/>
+                <field name="facturable" invisible="1"/>
+                <field name="state"      invisible="1"/>
+            </tree>
+        </field>
+    </record>
+    <record  id="is_dossier_contrat_detail_encours_a_facturer_action" model="ir.actions.act_window">
+        <field name="name">Détail contrat Encours + A facturer</field>
+        <field name="res_model">is.dossier.contrat.detail</field>
+        <field name="view_type">form</field>
+        <field name="limit">1000</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="is_dget.is_dossier_contrat_detail_encours_a_facturer_tree"/>
+        <field name="domain">[
+            ('facturable','=','oui'),
+            ('state'     ,'=','en_cours'),
+            ('facture_recursif','&lt;',100),
+            ('montant_ht'      ,'&gt;',0),
+            ('avancement'      ,'&gt;',0),
+        ]</field>
+    </record>
 
 
 
