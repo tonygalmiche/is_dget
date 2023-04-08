@@ -505,10 +505,11 @@ class IsDossierContratDetail(models.Model):
     _rec_name = 'numligne'
 
 
-    @api.depends('montant1','montant2','montant3','montant4')
+    @api.depends('montant1','montant2','montant3','montant4','avancement','a_facturer','facture_recursif')
     def _compute_montant_ht(self):
         for obj in self:
             obj.montant_ht = obj.montant1 + obj.montant2 + obj.montant3 + obj.montant4
+            obj.reste_facturable = obj.avancement - obj.facture_recursif
 
 
     @api.depends('a_facturer')
@@ -521,12 +522,12 @@ class IsDossierContratDetail(models.Model):
             restant=0
             montant_restant=0
             if obj.facturable=='oui':
-                if obj.montant_facture>0:
+                if obj.avancement==100:
                     restant=100-obj.facture_recursif
-                    montant_restant = obj.montant_ht - obj.montant_facture
+                    montant_restant = restant*obj.montant_ht/100
                 else:
-                    encours=100-obj.facture_recursif
-                    montant_encours = obj.montant_ht - obj.montant_facture
+                    encours=obj.avancement-obj.facture_recursif
+                    montant_encours = encours*obj.montant_ht/100
             obj.encours = encours
             obj.montant_encours = montant_encours
             obj.restant = restant
@@ -575,10 +576,12 @@ class IsDossierContratDetail(models.Model):
 
     facture_recursif   = fields.Float("% facturé récursif", digits=(14,4))
 
-    encours         = fields.Float(u"% En cours"                , digits=(14,4), compute='_compute_facture', readonly=True, store=False)
-    montant_encours = fields.Float(u"Montant en cours"          , digits=(14,2), compute='_compute_facture', readonly=True, store=False)
-    restant         = fields.Float(u"% Restant à facturer"      , digits=(14,4), compute='_compute_facture', readonly=True, store=False)
-    montant_restant = fields.Float(u"Montant restant à facturer", digits=(14,2), compute='_compute_facture', readonly=True, store=False)
+    reste_facturable   = fields.Float(u"% Reste Facturable", digits=(14,4), compute='_compute_montant_ht', readonly=True, store=True)
+
+    encours                    = fields.Float(u"% En cours"                , digits=(14,4), compute='_compute_facture', readonly=True, store=False)
+    montant_encours            = fields.Float(u"Montant en cours"          , digits=(14,2), compute='_compute_facture', readonly=True, store=False)
+    restant                    = fields.Float(u"% Restant à facturer"      , digits=(14,4), compute='_compute_facture', readonly=True, store=False)
+    montant_restant            = fields.Float(u"Montant restant à facturer", digits=(14,2), compute='_compute_facture', readonly=True, store=False)
 
 
 
