@@ -801,6 +801,7 @@
                 <field name="det_phase"/>
                 <field name="montant_ht"         sum="Total"/>
                 <field name="avancement"/>
+                <field name="montant_a_facturer" sum="Total"/>
                 <field name="facture_recursif"               string="% déjà facturé"/>
                 <field name="montant_facture"    sum="Total" string="Montant déjà facturé"/>
                 <field name="encours"/>
