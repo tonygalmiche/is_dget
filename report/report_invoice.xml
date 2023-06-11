@@ -223,8 +223,12 @@
 
                     <t t-set="total3"         t-value="0.0"/>
                     <t t-if="nb_factures">
-                        <br />
-                        <div style="page-break-after:always;" />
+                        <!-- <br /> -->
+                        <!-- <div style="page-break-after:always;" /> -->
+
+                        <div style="height:3mm"/>
+
+
                         <table style="width:100%">
                             <thead>
                                 <tr>
