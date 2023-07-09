@@ -314,6 +314,7 @@
                             <field name="num_marche"/>
                             <field name="code_service"/>
                             <field name="traitance_id"/>
+                            <field name="numligne_max" invisible="1"/>
                             <!-- <field name="anomalie"/> -->
                         </group>
                     </group>

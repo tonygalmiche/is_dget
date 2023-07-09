@@ -164,6 +164,16 @@ class IsDossierContrat(models.Model):
         return True
 
 
+    @api.depends('detail_ids')
+    def compute_numligne_max(self):
+        for obj in self:
+            numligne_max=0
+            for line in obj.detail_ids:
+                if line.numligne>numligne_max:
+                    numligne_max=line.numligne
+            obj.numligne_max=numligne_max
+
+
     @api.multi
     def _get_numcontrat(self):
         context = self._context
@@ -203,6 +213,9 @@ class IsDossierContrat(models.Model):
     tva_id        = fields.Many2one('is.tva', u'TVA')
     anomalie      = fields.Float(u"Anomalie", default=0)
     state         = fields.Selection([('en_cours','En cours'),('termine','Terminé')],"Etat", default='en_cours')
+
+    numligne_max  = fields.Integer(u"N° Ligne maxi", compute='compute_numligne_max')
+
 
 
     # def get_invoice_line_recursif(self, compteur, niveau, lines, sens, invoice, invoices):
@@ -277,7 +290,6 @@ class IsDossierContrat(models.Model):
     @api.multi
     def update_restant_ht_action(self):
         for obj in self:
-            #print("bouton actualisé restant ht")
             obj.compute_restant_ht()
         # for obj in self:
 
@@ -294,6 +306,7 @@ class IsDossierContrat(models.Model):
     def update_reellement_facture_action(self):
         for obj in self:
             obj.update_reellement_facture_contrat(update_facture=True)
+            obj.compute_restant_ht()
 
     def update_reellement_facture_contrat(self, update_facture=False):
         """
@@ -501,7 +514,7 @@ class IsDossierContrat(models.Model):
 class IsDossierContratDetail(models.Model):
     _name = 'is.dossier.contrat.detail'
     _description = u"Détail Contrat"
-    _order = 'contrat_id,numligne'
+    _order = 'contrat_id,numligne,id'
     _rec_name = 'numligne'
 
 
@@ -534,12 +547,19 @@ class IsDossierContratDetail(models.Model):
             obj.montant_restant = montant_restant
 
 
+    # @api.multi
+    # def _get_numligne(self,numligne_max):
+    #     numligne = numligne_max+10
+    #     #numligne=123
+    #     return numligne
+
+
     contrat_id  = fields.Many2one('is.dossier.contrat', 'Contrat', required=True, ondelete='cascade')
     state       = fields.Selection(related='contrat_id.state')
     dossier_id  = fields.Many2one(related='contrat_id.dossier_id')
     description = fields.Char(related='contrat_id.description')
 
-    numligne    = fields.Integer(u"Ligne")
+    numligne    = fields.Integer(u"Ligne", default=0) #, default=lambda self: self._get_numligne(self.contrat_id.numligne_max))
     commentaire = fields.Boolean(u"Commentaire", default=False)
     phase_id    = fields.Many2one('is.dossier.contrat.phase', 'Phase')
     det_phase   = fields.Char(u"Description Phase", related='phase_id.det_phase')
@@ -584,7 +604,11 @@ class IsDossierContratDetail(models.Model):
     montant_restant            = fields.Float(u"Montant restant à facturer", digits=(14,2), compute='_compute_facture', readonly=True, store=False)
 
 
-
+    @api.model
+    def create(self, vals):
+        res=super(IsDossierContratDetail, self).create(vals)
+        res.numligne = res.contrat_id.numligne_max+10
+        return res
 
 
 class IsDossierContratPhase(models.Model):
