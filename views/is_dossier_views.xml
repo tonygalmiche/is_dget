@@ -899,6 +899,13 @@
         <field name="model">is.declaration.maf</field>
         <field name="arch" type="xml">
             <form>
+                <header>
+                    <button
+                        name="export_excel_action"
+                        type="object"
+                        string="Export Excel"
+                    />
+                </header>
                 <sheet>
                     <group>
                         <group>

@@ -2,6 +2,14 @@
 from odoo import api, fields, models, _
 from datetime import date, datetime
 from odoo.exceptions import Warning
+import base64
+from openpyxl import Workbook
+from openpyxl.utils import get_column_letter
+from openpyxl.styles import Alignment, PatternFill, Font, borders
+from openpyxl.styles.borders import Border
+from openpyxl.worksheet.page import PageMargins
+
+
 
 
 def _get_prefix_annee():
@@ -160,7 +168,6 @@ class IsDossierContrat(models.Model):
                         facturable_ht += line.montant_ht*(line.a_facturer-line.facture_recursif)/100.0
             obj.restant_ht    = restant_ht
             obj.facturable_ht = facturable_ht
-            #print("restant_ht %.4f  | facturable_ht %.4f " %(obj.restant_ht, obj.facturable_ht))
         return True
 
 
@@ -759,13 +766,6 @@ class IsDeclarationMAF(models.Model):
                     if 0 not in r[contrat]:
                         r[contrat][0]=0
                     r[contrat][0]+=row[17] or 0
-                    #r[contrat][0]+=row[23] or 0
-                    #r[contrat][0]+=row[24] or 0
-                    #r[contrat][0]+=row[25] or 0
-                    #r[contrat][0]+=row[26] or 0
-
-
-
 
         keys=sorted(r.keys(), reverse=True)
         total=0
@@ -805,6 +805,212 @@ class IsDeclarationMAF(models.Model):
         for k in keys:
             recap2.append([k,recap[k]])
         return [res,recap2]
+
+    @api.multi
+    def export_excel_action(self):
+        for obj in self:
+            res = obj.get_contrats(obj)
+
+
+
+
+
+
+            excel_attachment_id = False
+            #** Création du workbook ******************************************
+            name  = 'declaration-maf-%s.xlsx'%obj.name
+            path = '/tmp/%s'%name
+            workbook = Workbook()
+            ws = workbook.active
+            ws.title = "Déclaration MAF"
+            ws.sheet_view.showGridLines = False
+            border1 = borders.Side(style = None, color = 'FF000000', border_style = 'thin')
+            thin_border = Border(left = border1, right = border1, bottom = border1, top = border1)
+            #******************************************************************
+
+            #** Ligne d'entête ************************************************
+            titres=["N°affaire","N°contrat", "Nom affaire", "Code MAF", "Contrat HT", "Affaire HT"]
+            column = 1
+            row = 1
+            for titre in titres:
+                clr_background = PatternFill(start_color='FFFACD', end_color='FFFACD', fill_type="solid")
+                cell = ws.cell(row=row, column=column, value=titre)
+                cell.fill = clr_background
+                cell.alignment = Alignment(horizontal='center')
+                cell.font = Font(name='Calibri', bold=True)
+                cell.border = thin_border
+                column+=1
+            #******************************************************************
+
+            #** Largeur des colonnes ******************************************
+            ws.column_dimensions['A'].width=12
+            ws.column_dimensions['B'].width=15
+            ws.column_dimensions['C'].width=40
+            ws.column_dimensions['D'].width=12
+            ws.column_dimensions['E'].width=15
+            ws.column_dimensions['F'].width=15
+            #******************************************************************
+
+
+            #** Totaux des affaires *******************************************
+            lines = res[0]
+            totaux={}
+            for line in lines:
+                numaff = line["contrat"].dossier_id.numaff
+                if numaff not in totaux:
+                    totaux[numaff] = 0
+                totaux[numaff]+=line["montant"]
+            #******************************************************************
+
+
+            #** Lignes ********************************************************
+            color1 = PatternFill(start_color='DEEBF7', end_color='DEEBF7', fill_type="solid")
+            color2 = PatternFill(start_color='D0CECE', end_color='D0CECE', fill_type="solid")
+            row+=1
+            color=color1
+            mem = ""
+            first=True
+            for line in lines:
+                contrat = line["contrat"]
+                if mem!=contrat.dossier_id.numaff:
+                    first=True
+                    total = 0
+                    mem = contrat.dossier_id.numaff
+                    if color==color1:
+                        color=color2
+                    else:
+                        color=color1
+
+                cell = ws.cell(row=row, column=1, value=contrat.dossier_id.numaff)
+                cell.alignment = Alignment(horizontal='center')
+                cell.font = Font(name='Calibri', bold=False)
+                cell.border = thin_border
+                cell.fill = color
+
+                cell = ws.cell(row=row, column=2, value=contrat.name)
+                cell.alignment = Alignment(horizontal='center')
+                cell.font = Font(name='Calibri', bold=False)
+                cell.border = thin_border
+                cell.fill = color
+
+                cell = ws.cell(row=row, column=3, value=contrat.dossier_id.nom)
+                cell.alignment = Alignment(horizontal='left')
+                cell.font = Font(name='Calibri', bold=False)
+                cell.border = thin_border
+                cell.fill = color
+
+                cell = ws.cell(row=row, column=4, value=line["code"])
+                cell.alignment = Alignment(horizontal='center')
+                cell.font = Font(name='Calibri', bold=False)
+                cell.border = thin_border
+                cell.fill = color
+
+                cell = ws.cell(row=row, column=5, value=line["montant"])
+                cell.alignment = Alignment(horizontal='right')
+                cell.font = Font(name='Calibri', bold=False)
+                cell.border = thin_border
+                cell.fill = color
+                cell.number_format = '# ##0.00'  # Number formatting
+
+
+                if first:
+                    value = totaux[contrat.dossier_id.numaff]
+                    cell = ws.cell(row=row, column=6, value=value)
+                    cell.alignment = Alignment(horizontal='right')
+                    cell.font = Font(name='Calibri', bold=False)
+                    cell.border = thin_border
+                    cell.fill = color
+                    cell.number_format = '# ##0.00'  # Number formatting
+
+                first=False
+                row+=1
+            #******************************************************************
+
+            #** Récapitulatif *************************************************
+            row+=2
+            titres=["Code MAF", "Montant HT"]
+            column = 4
+            for titre in titres:
+                clr_background = PatternFill(start_color='FFFACD', end_color='FFFACD', fill_type="solid")
+                cell = ws.cell(row=row, column=column, value=titre)
+                cell.fill = clr_background
+                cell.alignment = Alignment(horizontal='center')
+                cell.font = Font(name='Calibri', bold=True)
+                cell.border = thin_border
+                column+=1
+            row+=1
+            recap2 = res[1]
+            for line in recap2:
+                cell = ws.cell(row=row, column=4, value=line[0])
+                cell.alignment = Alignment(horizontal='left')
+                cell.font = Font(name='Calibri', bold=True)
+                cell.border = thin_border
+
+                cell = ws.cell(row=row, column=5, value=line[1])
+                cell.alignment = Alignment(horizontal='right')
+                cell.font = Font(name='Calibri', bold=True)
+                cell.border = thin_border
+                cell.number_format = '# ##0.00'  # Number formatting
+                row+=1
+            #******************************************************************
+
+            #** Mise en page **************************************************
+            #ws.page_setup.orientation = ws.ORIENTATION_LANDSCAPE
+            ws.sheet_properties.pageSetUpPr.fitToPage = True
+            ws.page_setup.fitToHeight = False
+            ws.oddFooter.center.text = "Page &[Page] of &N"
+            ws.page_margins = PageMargins(left=0.3, right=0.3, top=0.3, bottom=0.7, header=0, footer=0.3)
+            ws.print_title_rows = '1:1' # the first two rows 
+            ws.print_options.horizontalCentered = True
+            #******************************************************************
+
+            #** Fixer les lignes et les colonnes ******************************
+            cel = ws['A2']
+            ws.freeze_panes = cel
+            #******************************************************************
+
+            # #** Enregistrement du workbook ************************************
+            workbook.save(path)
+            # #******************************************************************
+
+            # ** Creation ou modification de la pièce jointe ******************
+            user  = self.env['res.users'].browse(self._uid)
+            attachment_obj = self.env['ir.attachment']
+            attachments = attachment_obj.search([('res_id','=',user.id),('name','=',name)])
+            xlsx = open(path,'rb').read()
+            vals = {
+                'name':        name,
+                'type':        'binary',
+                'res_id':      user.id,
+                'datas':       base64.b64encode(xlsx),
+            }
+            attachment_id=False
+            if attachments:
+                for attachment in attachments:
+                    attachment.write(vals)
+                    attachment_id=attachment.id
+            else:
+                attachment = attachment_obj.create(vals)
+                attachment_id=attachment.id
+            #*******************************************************************
+
+            ##** Envoi de l'action dans le navigateur **************************
+            if attachment_id:
+                vals={
+                    "type": 'ir.actions.act_url',
+                    "url" : '/web/content/%s?download=true'%attachment_id,
+                }
+                return vals
+
+    # ExcelClick(ev) {
+    #     const excel_attachment_id = ev.target.attributes.excel_attachment_id.value;
+    #     this.action.doAction);
+    # }
+
+
+
+
+
 
 
 class IsConcours(models.Model):
