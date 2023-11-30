@@ -811,11 +811,6 @@ class IsDeclarationMAF(models.Model):
         for obj in self:
             res = obj.get_contrats(obj)
 
-
-
-
-
-
             excel_attachment_id = False
             #** Création du workbook ******************************************
             name  = 'declaration-maf-%s.xlsx'%obj.name
@@ -940,18 +935,37 @@ class IsDeclarationMAF(models.Model):
                 column+=1
             row+=1
             recap2 = res[1]
+            cell_start = cell_end = False
             for line in recap2:
                 cell = ws.cell(row=row, column=4, value=line[0])
                 cell.alignment = Alignment(horizontal='left')
-                cell.font = Font(name='Calibri', bold=True)
+                cell.font = Font(name='Calibri', bold=False)
                 cell.border = thin_border
 
                 cell = ws.cell(row=row, column=5, value=line[1])
                 cell.alignment = Alignment(horizontal='right')
-                cell.font = Font(name='Calibri', bold=True)
+                cell.font = Font(name='Calibri', bold=False)
                 cell.border = thin_border
                 cell.number_format = '# ##0.00'  # Number formatting
+                #** cell de début et de fin pour faire la somme ***************
+                if cell_start==False:
+                    cell_start = cell
+                cell_end = cell
                 row+=1
+            #******************************************************************
+
+            #** Total du récapitulatif ****************************************
+            cell = ws.cell(row=row, column=4, value="Total : ")
+            cell.alignment = Alignment(horizontal='left')
+            cell.font = Font(name='Calibri', bold=True)
+            cell.border = thin_border
+
+            formula = "=SUM(%s:%s)"%(cell_start.coordinate, cell_end.coordinate)
+            cell = ws.cell(row=row, column=5, value=formula)
+            cell.alignment = Alignment(horizontal='right')
+            cell.font = Font(name='Calibri', bold=True)
+            cell.border = thin_border
+            cell.number_format = '# ##0.00'  # Number formatting
             #******************************************************************
 
             #** Mise en page **************************************************
