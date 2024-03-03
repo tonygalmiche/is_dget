@@ -60,7 +60,6 @@ class AccountInvoice(models.Model):
     def name_get(self):
         result = []
         for obj in self:
-            #result.append((obj.id, str(obj.numaff)+u' - '+str(obj.nom)))
             result.append((obj.id, str(obj.name)))
         return result
 
@@ -74,15 +73,6 @@ class AccountInvoice(models.Model):
         date = self.date_invoice.strftime('%y%m%d')
         name="%s_%s"%(date,self.number)
         return name
-
-        # return  self.type == 'out_invoice' and self.state == 'draft' and _('Draft Invoice') or \
-        #         self.type == 'out_invoice' and self.state in ('open','in_payment','paid') and _('Invoice - %s') % (self.number) or \
-        #         self.type == 'out_refund' and self.state == 'draft' and _('Credit Note') or \
-        #         self.type == 'out_refund' and _('Credit Note - %s') % (self.number) or \
-        #         self.type == 'in_invoice' and self.state == 'draft' and _('Vendor Bill') or \
-        #         self.type == 'in_invoice' and self.state in ('open','in_payment','paid') and _('Vendor Bill - %s') % (self.number) or \
-        #         self.type == 'in_refund' and self.state == 'draft' and _('Vendor Credit Note') or \
-        #         self.type == 'in_refund' and _('Vendor Credit Note - %s') % (self.number)
 
 
     @api.multi
@@ -210,123 +200,6 @@ class AccountInvoice(models.Model):
                 visites.append(obj)
             return deja_factures, visites
 
-    # def update_deja_facture_recursif(self, now,niveau, sens, res):
-    #     for obj in self:
-    #         if now!=obj.is_date_update_facture:
-    #             print(niveau*" -", obj.name)
-    #             for line in obj.invoice_line_ids:
-    #                 line_sens=sens
-    #                 if line.price_unit<0:
-    #                     line_sens=-line_sens
-    #                 if obj.type=="out_refund":
-    #                     line_sens=-line_sens
-    #                 if line.is_invoice_id and line.is_invoice_id.state not in ['draft','cancel']:
-    #                     res=line.is_invoice_id.update_deja_facture_recursif(now,niveau+1,line_sens,res)
-    #             #     if line.is_contrat_detail_id:
-    #             #         phase_id = line.is_contrat_detail_id.phase_id
-    #             #         if phase_id not in res:
-    #             #             res[phase_id]=0
-    #             #         res[phase_id]+=line_sens*(line.quantity - line.is_deja_facture)
-
-
-
-    #         else:
-    #             print(niveau*" -", obj.name, "OK")
-    #             # #** Retourner ce qui est reelement facturé sans MAJ ***********
-    #             # for line in obj.invoice_line_ids:
-    #             #     line_sens=sens
-    #             #     if line.price_unit<0:
-    #             #         line_sens=-line_sens
-    #             #     if obj.type=="out_refund":signe_line******
-
-
-                
-
-
-                # on traite la queue ensuite en taillant les branches déjà visitées
-            
-
-            # if now!=obj.is_date_update_facture:
-            #     print(niveau*" -", obj.name)
-
-            # for line in obj.invoice_line_ids:
-
-            #     line_sens=sens
-            #     if line.price_unit<0:
-            #         line_sens=-line_sens
-            #     if obj.type=="out_refund":
-            #         line_sens=-line_sens
-
-
-            #     #if now!=obj.is_date_update_facture:
-            #     if line.is_invoice_id and line.is_invoice_id.state not in ['draft','cancel']:
-            #         res=line.is_invoice_id.update_deja_facture_recursif(now,niveau+1,line_sens,res)
-
-
-            #     if line.is_contrat_detail_id:
-            #         phase_id = line.is_contrat_detail_id.phase_id
-            #         #print(obj.name,res)
-            #         if phase_id not in res:
-            #             res[phase_id]=0
-            #         #quantity  = line.quantity
-            #         res[phase_id]+=line_sens*(line.quantity) #-line.is_deja_facture)
-            # else:
-            #     for line in obj.invoice_line_ids:
-            #        if line.is_contrat_detail_id:
-            #             phase_id = line.is_contrat_detail_id.phase_id
-            #             #print(obj.name,res)
-            #             if phase_id not in res:
-            #                 res[phase_id]=0
-            #             #quantity  = line.quantity
-            #             res[phase_id]+=(line.quantity -line.is_deja_facture) #-line.is_deja_facture)
-
-
-
-            #obj.is_date_update_facture = now
-            # #print(obj.name,res)
-            # for res_line in res:
-            #     for invoice_line in obj.invoice_line_ids:
-            #         if res_line==invoice_line.is_contrat_detail_id.phase_id:
-            #             deja_facture =  invoice_line.quantity - res[res_line]
-            #             print(niveau*" -", obj.name,"- \t facturé =",res_line.txt_phase,res[res_line], "\t qt =",invoice_line.quantity,"\t deja_facture =",deja_facture)
-            #             invoice_line.is_deja_facture =deja_facture
-
-
-
-            #return res
-
-
-    #                 invoices.append(line.is_invoice_id.name)
-    #             txt_phase = line.is_contrat_detail_id.phase_id.txt_phase
-    #             quantity  = line.quantity
-
-    #             line_sens=sens
-    #             if line.price_unit<0:
-    #                 line_sens=-line_sens
-    #             if invoice.type=="out_refund":
-    #                 line_sens=-line_sens
-    #             vals={
-    #                 "niveau"      : niveau,
-    #                 "invoice_name": invoice.name,
-    #                 "invoice_type": invoice.type,
-    #                 "is_contrat_detail_id": line.is_contrat_detail_id,
-    #                 "txt_phase"   : txt_phase,
-    #                 "price_unit"  : line.price_unit,
-    #                 "sens"        : line_sens,
-    #                 "quantity"    : quantity,
-    #             }
-    #             lines.append(vals)
-    #             if line.is_invoice_id and line.is_invoice_id.state not in ['draft','cancel']:
-    #                 res = obj.get_invoice_line_recursif(compteur+1, niveau+1, lines, line_sens, line.is_invoice_id, invoices)
-    #                 lines    = res.get("lines"   , [])
-    #                 compteur = res.get("compteur", 0)
-    #                 invoices = res.get("invoices", [])
-    #         res={
-    #             "lines"   : lines,
-    #             "compteur": compteur,
-    #             "invoices": invoices,
-    #         }
-    #         return res
 
     @api.multi
     def update_deja_facture_action(self):
@@ -357,6 +230,8 @@ class AccountInvoiceLine(models.Model):
     #_order = 'is_contrat_detail_id'
     _order = 'sequence,id'
 
+
+    is_contrat_id                 = fields.Many2one(related="invoice_id.is_contrat_id")
     is_contrat_detail_id          = fields.Many2one('is.dossier.contrat.detail', 'Ligne Contrat', index=True)
     is_invoice_id                 = fields.Many2one('account.invoice', 'Facture liée')
     is_deja_facture               = fields.Float("Déjà facturé", digits=(14,6))

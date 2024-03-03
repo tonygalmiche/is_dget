@@ -142,33 +142,57 @@
                 </field>
             </field>
         </record>
-
-<!-- 
-    <record id="view_invoice_line_form" model="ir.ui.view">
-            <field name="name">account.invoice.line.form</field>
+        <record id="account_invoice_line_search" model="ir.ui.view">
+            <field name="name">account_invoice_line_search</field>
             <field name="model">account.invoice.line</field>
             <field name="arch" type="xml">
-                <form>
-                    <field name="display_type" invisible="1"/>
-                    <field name="sequence" invisible="1"/>
-                    <group attrs="{'invisible': [('display_type', '!=', False)]}">
-                        <group>
-                            <field name="partner_id" invisible="1"/>
-                            <field name="invoice_type" invisible="1"/>
-                            <field name="company_id" invisible="1"/>
-                            <field name="product_id"
-                                 context="{'partner_id': partner_id}"/>
-                            <label for="quantity"/>
-                            <div>
-                                <field name="quantity" class="oe_inline"/>
-                                <field name="uom_id" class="oe_inline" groups="uom.group_uom"/>
-                            </div>
-                            <field name="price_unit"/>
-                            <field name="discount" groups="base.group_no_one"/>
-                            <field name="currency_id" invisible="1"/>
-                        </group>
+                <search>
+                    <field name="invoice_id"/>
+                    <field name="product_id"/>
+                    <field name="name"/>
+                    <field name="is_contrat_id"/>
+               </search>
+            </field>
+        </record>
+        <record id="anomalies_liens_factures_contrats_tree" model="ir.ui.view">
+            <field name="name">anomalies_liens_factures_contrats_tree</field>
+            <field name="model">account.invoice.line</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="invoice_id"                    readonly="1"/>
+                    <field name="product_id"                    readonly="1"/>
+                    <field name="name"                          readonly="1"/>
+                    <field name="is_contrat_id"                 readonly="1"/>
+                    <field name="is_contrat_detail_id" domain="[('contrat_id' ,'=',is_contrat_id)]"/>
+                    <field name="is_invoice_id"                 readonly="1"/>
+                    <field name="is_deja_facture"               readonly="1"/>
+                    <field name="is_reellement_facture"         readonly="1"/>
+                    <field name="is_montant_reellement_facture" readonly="1"/>
+                    <field name="quantity"                      readonly="1"/>
+                    <field name="price_unit"                    readonly="1"/>
+                    <field name="price_subtotal"                readonly="1" sum="Total"/>
+                </tree>
+            </field>
+        </record>
 
- -->
+
+        <record  id="anomalies_liens_factures_contrats_action" model="ir.actions.act_window">
+            <field name="name">Anomalies liens lignes de factures / Lignes de contrats</field>
+            <field name="res_model">account.invoice.line</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="limit">200</field>
+            <field name="view_mode">tree</field>
+            <field name="domain">[('is_invoice_id','=',False),('is_contrat_detail_id','=',False),('price_subtotal','!=',0)]</field>
+
+
+
+            <field name="view_id" ref="is_dget.anomalies_liens_factures_contrats_tree"/>
+        </record>
+    
+    
+    
+
 
 
 

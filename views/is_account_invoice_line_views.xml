@@ -95,16 +95,13 @@
                 <field name="is_contrat_detail_id"/>
                 <field name="codass1_id" string="Code assurance"
                        filter_domain="['|','|','|', ('codass1_id','=',self), ('codass2_id','=',self), ('codass3_id', '=', self), ('codass4_id', '=', self)]"/>
-
-
                 <filter name="2019" string="2019" domain="[('date_invoice','&gt;','2018-12-31'),('date_invoice','&lt;','2020-01-01')]"/>
                 <filter name="2020" string="2020" domain="[('date_invoice','&gt;','2019-12-31'),('date_invoice','&lt;','2021-01-01')]"/>
                 <filter name="2021" string="2021" domain="[('date_invoice','&gt;','2020-12-31'),('date_invoice','&lt;','2022-01-01')]"/>
                 <filter name="2022" string="2022" domain="[('date_invoice','&gt;','2021-12-31'),('date_invoice','&lt;','2023-01-01')]"/>
-
+                <filter name="2023" string="2023" domain="[('date_invoice','&gt;','2022-12-31'),('date_invoice','&lt;','2024-01-01')]"/>
+                <filter name="2024" string="2024" domain="[('date_invoice','&gt;','2023-12-31'),('date_invoice','&lt;','2025-01-01')]"/>
                 <filter name="total" string="Total ligne > 0" domain="[('total_ligne','&gt;',0)]"/>
-
-
           </search>
         </field>
     </record>

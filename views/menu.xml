@@ -170,6 +170,13 @@
         </record>
 
 
+        <record id="anomalies_liens_factures_contrats_menu" model="ir.ui.menu" >
+            <field name="name">Anomalies liens lignes de factures / Lignes de contrats</field>
+            <field name="sequence">40</field>
+            <field name="action"    ref="anomalies_liens_factures_contrats_action"/>
+            <field name="parent_id" eval="ref('is_account_invoice_main_menu')"/>
+        </record>
+
 
 
 
