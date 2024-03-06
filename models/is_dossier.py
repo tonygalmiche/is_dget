@@ -724,7 +724,8 @@ class IsDeclarationMAF(models.Model):
                                           inner join is_dossier                  id on idc.dossier_id=id.id
             where 
                 ai.date_invoice>='"""+str(obj.name)+"""-01-01' and
-                ai.date_invoice<='"""+str(obj.name)+"""-12-31'
+                ai.date_invoice<='"""+str(obj.name)+"""-12-31' and
+                ai.state not in ('draft','cancel')
             order by ai.name,ail.sequence
         """
         # and idc.name in ('34CT015-6','34CT018-1')
