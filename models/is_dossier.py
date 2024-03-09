@@ -554,13 +554,6 @@ class IsDossierContratDetail(models.Model):
             obj.montant_restant = montant_restant
 
 
-    # @api.multi
-    # def _get_numligne(self,numligne_max):
-    #     numligne = numligne_max+10
-    #     #numligne=123
-    #     return numligne
-
-
     contrat_id  = fields.Many2one('is.dossier.contrat', 'Contrat', required=True, ondelete='cascade')
     state       = fields.Selection(related='contrat_id.state')
     dossier_id  = fields.Many2one(related='contrat_id.dossier_id')
@@ -616,6 +609,19 @@ class IsDossierContratDetail(models.Model):
         res=super(IsDossierContratDetail, self).create(vals)
         res.numligne = res.contrat_id.numligne_max+10
         return res
+
+
+    @api.multi
+    def unlink(self):
+        for obj in self:
+            lines = self.env['account.invoice.line'].search([('is_contrat_detail_id','=',obj.id)])
+            if len(lines)>0:
+                factures=[]
+                for line in lines:
+                    factures.append(line.invoice_id.move_name)
+                factures=", ".join(factures)
+                raise Warning("Il n'est pas possible de supprimer la ligne '%s' car elle est utilsée dans les factures %s"%(obj.texte,factures))
+        return super(IsDossierContratDetail, self).unlink()
 
 
 class IsDossierContratPhase(models.Model):

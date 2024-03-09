@@ -54,6 +54,22 @@ class AccountInvoice(models.Model):
     is_tva_id                = fields.Many2one('is.tva', u'TVA')
     is_date_update_facture   = fields.Datetime("Date mise à jour déjà facturé")
     is_facture_payee         = fields.Selection([('oui','Oui'),('non','Non')],"Payée", default="non", required=True)
+    is_alerte                = fields.Text('Alerte', compute="_compute_is_alerte")
+
+
+    @api.depends('invoice_line_ids')
+    def _compute_is_alerte(self):
+        for obj in self:
+            alertes=[]
+            for line in obj.invoice_line_ids:
+                if not line.is_contrat_detail_id:
+                    if line.product_id and line.product_id.name not in ['Facture','Révisions']:
+                        alertes.append("La ligne '%s' n'est pas reliée au contrat"%line.name)
+            if len(alertes)>0:
+                alertes="\n".join(alertes)
+            else:
+                alertes=False
+            obj.is_alerte=alertes
 
 
     @api.multi
@@ -70,8 +86,10 @@ class AccountInvoice(models.Model):
             prefix = "Facture"
         else:
             prefix = "Avoir"
-        date = self.date_invoice.strftime('%y%m%d')
-        name="%s_%s"%(date,self.number)
+        date=""
+        if self.date_invoice:
+            date = self.date_invoice.strftime('%y%m%d')
+        name="%s_%s"%(date,self.number or '')
         return name
 
 
