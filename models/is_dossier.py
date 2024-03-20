@@ -732,6 +732,7 @@ class IsDeclarationMAF(models.Model):
                 ai.date_invoice>='"""+str(obj.name)+"""-01-01' and
                 ai.date_invoice<='"""+str(obj.name)+"""-12-31' and
                 ai.state not in ('draft','cancel')
+                -- and id.numaff='32A011'
             order by ai.name,ail.sequence
         """
         # and idc.name in ('34CT015-6','34CT018-1')
@@ -739,9 +740,6 @@ class IsDeclarationMAF(models.Model):
         rows = cr.fetchall()
         nb=len(rows)
         r={}
-
-
-
         for row in rows:
             contrat = row[10]
             if contrat not in r:
@@ -767,13 +765,10 @@ class IsDeclarationMAF(models.Model):
                     if row[3] not in r[contrat]:
                         r[contrat][row[3]]=0
                     r[contrat][row[3]]+=row[26] or 0
-
-
                 if not row[0] and not row[1] and not row[2] and not row[3]:
                     if 0 not in r[contrat]:
                         r[contrat][0]=0
                     r[contrat][0]+=row[17] or 0
-
         keys=sorted(r.keys(), reverse=True)
         total=0
         res=[]
@@ -791,6 +786,7 @@ class IsDeclarationMAF(models.Model):
                 code    = line[0].strip()
                 montant = line[1]
                 contrats = self.env['is.dossier.contrat'].search([('name','=',k)],order="name",limit=1)
+                #print('TEST 3',line,code,montant,contrats)
                 if contrats:
                     contrat=contrats[0]
                     traitance = contrat.traitance_id.code or ''
@@ -798,7 +794,7 @@ class IsDeclarationMAF(models.Model):
                     if cle not in recap:
                         recap[cle]=0
                     recap[cle]+=montant
-                    if montant>0:
+                    if montant!=0:
                         vals={
                             'contrat'  : contrat,
                             'code'     : code,
